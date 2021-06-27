@@ -1,0 +1,19 @@
+# IDE LOCALS
+.idea
+.history
+.vscode
+wandb
+.venv
+
+
+__pycache__
+*.pickle
+
+# Datasets
+yelp_academic_dataset_business.json
+
+#Flutter web bundle
+*.flutter
+
+# Sensitive info
+.buildew

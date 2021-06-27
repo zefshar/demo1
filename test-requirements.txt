@@ -1,0 +1,15 @@
+tensorflow
+keras
+pandas
+numpy==1.18.1
+pillow
+wandb
+h5py
+opencv-python
+scikit-learn
+# JUPITER LAB
+expectexception
+# GOOGLE API
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
