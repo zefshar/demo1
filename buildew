@@ -93,7 +93,7 @@ if [ "x$COMMAND" == "xdev" ]; then
     cd $CURRENT_FOLDER
     cd demo1
     flutter build web || exit 1
-    flutter run -d chrome
+    flutter run -d chrome --web-hostname localhost --web-port 43433
     cd $CURRENT_FOLDER
 fi
 

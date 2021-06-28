@@ -1,8 +1,10 @@
+import 'package:demo1/src/utils.dart';
 import 'package:flutter/material.dart';
 
 /// Image representation
 class ImageCardWidget extends StatelessWidget {
   final int index;
+  final int count = 0;
 
   const ImageCardWidget({required this.index, Key? key}) : super(key: key);
 
@@ -11,28 +13,61 @@ class ImageCardWidget extends StatelessWidget {
     return Center(
       child: Card(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
-            // const ListTile(
-            //   leading: Icon(Icons.album),
-            //   title: Text('The Enchanted Nightingale'),
-            //   subtitle: Text('Music by Julie Gable. Lyrics by Sidney Stein.'),
-            // ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                TextButton(
-                  child: const Text('BUY TICKETS'),
-                  onPressed: () {/* ... */},
-                ),
-                const SizedBox(width: 8),
-                TextButton(
-                  child: const Text('LISTEN'),
-                  onPressed: () {/* ... */},
-                ),
-                const SizedBox(width: 8),
-              ],
+            Padding(
+              padding: EdgeInsets.fromLTRB(6, 0, 0, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  Text(
+                    'CLASS ',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'TexGyreHeros',
+                        color: Color(0xFFD7BBFA)),
+                  ),
+                  Text(
+                    '${GetExcelColumnName(index + 1)}',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'TexGyreHeros',
+                        color: Colors.black87),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'IMAGES: ',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontFamily: 'TexGyreHeros',
+                        color: Color(0xFFD7BBFA)),
+                  ),
+                  Text(
+                    '${this.count}',
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontFamily: 'TexGyreHeros',
+                        color: Colors.black45,
+                        fontWeight: FontWeight.w900,
+                        decoration: TextDecoration.underline,
+                        decorationStyle: TextDecorationStyle.solid,
+                        decorationColor: Color(0xFFD7BBFA)),
+                  ),
+                  const SizedBox(width: 8),
+                ],
+              ),
             ),
+            Padding(
+                padding: EdgeInsets.fromLTRB(0, 0, 22, 0),
+                child: Container(
+                    alignment: Alignment.topLeft,
+                    child: Image(
+                      width: 161,
+                      fit: BoxFit.fitWidth,
+                      image: NetworkImage(
+                          'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg'),
+                    ))),
           ],
         ),
       ),

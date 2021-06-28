@@ -1,6 +1,8 @@
 import 'package:demo1/src/component/app_bar_title_widget.dart';
+import 'package:demo1/src/component/gallery_toolbar_widget.dart';
 import 'package:demo1/src/component/image_card_widget.dart';
 import 'package:demo1/src/model/classes_count_args.dart';
+import 'package:demo1/src/model/columns_count_args.dart';
 import 'package:demo1/src/service/images_classifier_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -93,6 +95,12 @@ class _HomePageState extends State<HomePage> {
       }
     });
 
+    widget.imagesClassifierService.columnsCountChangedEvent.subscribe((args) {
+      if (args is ColumnsCountArgs && ((args).value ?? 0) > 0) {
+        this.setState(() {});
+      }
+    });
+
     var classes = List<Widget>.generate(
         this.widget.imagesClassifierService.ClassesCount ?? 0,
         (int index) => ImageCardWidget(
@@ -108,17 +116,27 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Container(
           child: Column(children: [
-        Expanded(
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            children: classes,
+        Flexible(
+          child: Container(
+            constraints:
+                BoxConstraints(maxHeight: 200, minWidth: double.infinity),
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: classes,
+            ),
+          ),
+        ),
+        Flexible(
+          child: Container(
+            constraints:
+                BoxConstraints(maxHeight: 62, minWidth: double.infinity),
+            child: GalleryToolbarWidget(
+                imagesClassifierService: widget.imagesClassifierService),
           ),
         ),
         Expanded(
           child: GridView.count(
-            // Create a grid with 2 columns. If you change the scrollDirection to
-            // horizontal, this produces 2 rows.
-            crossAxisCount: 2,
+            crossAxisCount: widget.imagesClassifierService.ColumnsCount ?? 0,
             // Generate 100 widgets that display their index in the List.
             children: List.generate(100, (index) {
               return Center(
