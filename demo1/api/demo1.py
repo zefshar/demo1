@@ -12,6 +12,7 @@ from http import server
 import urllib
 import traceback
 import argparse
+from typing import Optional
 
 from demo1.api.demo1_version import Demo1Version
 from demo1.api.demo1_configuration import Demo1Configuration
@@ -33,6 +34,7 @@ import os
 
 
 DEMO1_FLUTTER_PACK='demo1.flutter'
+PR1_FLUTTER_PACK='pr1.flutter'
 APPLICATION_JSON = 'application/json'
 
 
@@ -253,8 +255,8 @@ class FlutterBundle(object):
                             return os.path.abspath(os.path.join(root, file_name))
         return None
 
-    def process(self, handler: server.BaseHTTPRequestHandler):
-        file_path = '.' + handler.path
+    def process(self, handler: server.BaseHTTPRequestHandler, application_path: Optional[str] = None):
+        file_path = '.' + (handler.path[len(application_path):] if application_path else handler.path)
         _, file_extension = os.path.splitext(handler.path)
         # Auto-append index.html for folders
         if not file_extension:
@@ -289,8 +291,14 @@ class PresenterHandler(server.BaseHTTPRequestHandler):
             self.send_response(301)
             self.send_header('Location', '/index.html')
             self.end_headers()
-        elif PresenterHandler.demo1_bundle.has_path(self.path):
-            PresenterHandler.demo1_bundle.process(self)
+        if self.path == '/demo1' or self.path == '/demo1/':
+            self.send_response(301)
+            self.send_header('Location', '/demo1/index.html')
+            self.end_headers()
+        elif PresenterHandler.pr1_bundle.has_path(self.path):
+            PresenterHandler.pr1_bundle.process(self)
+        elif self.path.startswith('/demo1') and PresenterHandler.demo1_bundle.has_path(self.path[6:]):
+            PresenterHandler.demo1_bundle.process(self, '/demo1')
         elif self.path == '/stream.mjpg':
             self.send_response(200)
             self.send_header('Age', 0)
@@ -410,6 +418,8 @@ class Demo1StatePresenter(socketserver.ThreadingMixIn, server.HTTPServer):
     def start(self):
         PresenterHandler.demo1_bundle = FlutterBundle(
             'demo1', [self.demo1_configuration.get_application_folder()])  # [.] for debug
+        PresenterHandler.pr1_bundle = FlutterBundle(
+            'pr1', [self.demo1_configuration.get_application_folder()])  # [.] for debug
         demo1_state_controller.demo1_executor = ScheduledThreadPoolExecutor(max_workers=1,
                                                 thread_name_prefix='executor-thread')
         demo1_state_controller.demo1_configuration = self.demo1_configuration

@@ -21,6 +21,11 @@ exports.handler = async (event, context, callback) => {
     const clusterArn = task.clusterArn;
     console.log(`clusterArn: ${clusterArn}`)
 
+    if (task.lastStatus !== 'RUNNING') {
+        console.log(`Skipping. Reason: lastStatus is not RUNNING it is ${task.lastStatus}`);
+        return;
+    }
+
     const clusterName = clusterArn.split(':cluster/')[1];
 
     const tags = await fetchClusterTags(clusterArn)

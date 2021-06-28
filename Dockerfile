@@ -17,6 +17,7 @@ COPY --from=builder /install /usr/local
 
 COPY ./demo1/api /app/demo1/api
 COPY demo1.flutter /app
+COPY pr1.flutter /app
 COPY google_token.pickle /app
 COPY .prebuild/.demo1 /root/.demo1
 WORKDIR /app

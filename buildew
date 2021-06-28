@@ -73,6 +73,11 @@ if [ "x$COMMAND" == "xbuild" ]; then
     cd $CURRENT_FOLDER
     tar -cf demo1.flutter -C demo1/build/web .
 
+    cd pr1
+    flutter build web --web-renderer canvaskit
+    cd $CURRENT_FOLDER
+    tar -cf pr1.flutter -C pr1/build/web .
+
     echo 'Build docker image'
     mkdir -p .prebuild
     cp -fr ~/.demo1 .prebuild

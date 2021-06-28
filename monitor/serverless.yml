@@ -29,11 +29,6 @@ functions:
                                                 - "aws.ecs"
                                         detail-type:
                                                 - "ECS Task State Change"
-                                        detail:
-                                                desiredStatus:
-                                                        - "RUNNING"
-                                                lastStatus:
-                                                        - "RUNNING"
 
 
 package:
