@@ -140,9 +140,10 @@ class _HomePageState extends State<HomePage> {
             // Generate 100 widgets that display their index in the List.
             children: List.generate(100, (index) {
               return Center(
-                child: Text(
-                  'Item $index',
-                  style: Theme.of(context).textTheme.headline5,
+                child: Image(
+                  fit: BoxFit.fitWidth,
+                  image: NetworkImage(
+                      'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg'),
                 ),
               );
             }),

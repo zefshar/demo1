@@ -59,12 +59,13 @@ class ImageCardWidget extends StatelessWidget {
               ),
             ),
             Padding(
-                padding: EdgeInsets.fromLTRB(0, 0, 22, 0),
+                padding: EdgeInsets.fromLTRB(0, 0, 22, 4),
                 child: Container(
+                  height: 159,
+                  width: 159,
                     alignment: Alignment.topLeft,
                     child: Image(
-                      width: 161,
-                      fit: BoxFit.fitWidth,
+                    fit: BoxFit.fitWidth,
                       image: NetworkImage(
                           'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg'),
                     ))),
