@@ -94,10 +94,10 @@ class _HomePageState extends State<HomePage> {
     });
 
     var classes = List<Widget>.generate(
-              this.widget.imagesClassifierService.ClassesCount ?? 0,
-              (int index) => ImageCardWidget(
-                    index: index,
-                  ));
+        this.widget.imagesClassifierService.ClassesCount ?? 0,
+        (int index) => ImageCardWidget(
+              index: index,
+            ));
 
     var scaffold = Scaffold(
       appBar: AppBar(
@@ -107,11 +107,30 @@ class _HomePageState extends State<HomePage> {
         elevation: 1,
       ),
       body: Container(
-        child: ListView(
-          scrollDirection: Axis.horizontal,
-          children: classes,
+          child: Column(children: [
+        Expanded(
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: classes,
+          ),
         ),
-      ),
+        Expanded(
+          child: GridView.count(
+            // Create a grid with 2 columns. If you change the scrollDirection to
+            // horizontal, this produces 2 rows.
+            crossAxisCount: 2,
+            // Generate 100 widgets that display their index in the List.
+            children: List.generate(100, (index) {
+              return Center(
+                child: Text(
+                  'Item $index',
+                  style: Theme.of(context).textTheme.headline5,
+                ),
+              );
+            }),
+          ),
+        ),
+      ])),
     );
 
     if (kDebugMode) {
