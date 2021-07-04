@@ -66,7 +66,7 @@ echo =========== $COMMAND
 echo $COMMAND ===========
 echo COMMAND
 
-if [ "x$COMMAND" == "xbuild" ]; then
+function build {
     CURRENT_FOLDER=$PWD
     cd demo1
     flutter build web
@@ -83,6 +83,11 @@ if [ "x$COMMAND" == "xbuild" ]; then
     cp -fr ~/.demo1 .prebuild
     docker build -t demo1/demo1:v1 .
     rm -fr .prebuild
+}
+
+
+if [ "x$COMMAND" == "xbuild" ]; then
+    build
 fi
 
 if [ "x$COMMAND" == "xdev" ]; then
@@ -112,6 +117,7 @@ fi
 # venv/bin/python -m unittest discover -s ./tests -p 'test_*.py' -t . -b --locals -v
 
 if [ "x$COMMAND" == "xdeploy" ]; then
+    build
     echo Deploy docker image to the AWS
     echo I\'ll use account: $AWS_ACCOUNT \(like: 1234567.dkr.ecr.us-east-2.amazonaws.com\)
     echo AWS_PROFILE is $AWS_PROFILE
