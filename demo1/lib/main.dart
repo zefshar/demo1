@@ -107,7 +107,10 @@ class _HomePageState extends State<HomePage> {
               index: index,
             ));
 
+    final size = MediaQuery.of(context).size;
+
     var scaffold = Scaffold(
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: AppBarTitleWidget(
             title: widget.title,
@@ -117,6 +120,7 @@ class _HomePageState extends State<HomePage> {
       body: Container(
           child: Column(children: [
         Flexible(
+          flex: 2,
           child: Container(
             constraints:
                 BoxConstraints(maxHeight: 200, minWidth: double.infinity),
@@ -127,6 +131,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         Flexible(
+          flex: 1,
           child: Container(
             constraints:
                 BoxConstraints(maxHeight: 62, minWidth: double.infinity),
@@ -135,6 +140,7 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         Expanded(
+          flex: 3,
           child: GridView.count(
             crossAxisCount: widget.imagesClassifierService.ColumnsCount ?? 0,
             // Generate 100 widgets that display their index in the List.
