@@ -68,10 +68,10 @@ echo COMMAND
 
 function build {
     CURRENT_FOLDER=$PWD
-    cd demo1
+    cd demo1-frontend
     flutter build web
     cd $CURRENT_FOLDER
-    tar -cf demo1.flutter -C demo1/build/web .
+    tar -cf demo1.flutter -C demo1-frontend/build/web .
 
     cd pr1
     flutter build web --web-renderer canvaskit

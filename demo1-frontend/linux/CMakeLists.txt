@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(runner LANGUAGES CXX)
 
 set(BINARY_NAME "demo1")
-set(APPLICATION_ID "com.example.demo1")
+set(APPLICATION_ID "com.zefshar.demo1")
 
 cmake_policy(SET CMP0063 NEW)
 
