@@ -3,7 +3,7 @@ import 'package:demo1/src/model/classes_count_args.dart';
 import 'package:demo1/src/model/columns_count_args.dart';
 import 'package:event/event.dart';
 
-final DEFAULT_CLASSES_COUNT = 7;
+final DEFAULT_CLASSES_COUNT = 2;
 final DEFAULT_COLUMNS_COUNT = 2;
 
 /// Represents a global application state
