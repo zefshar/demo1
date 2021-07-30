@@ -27,6 +27,7 @@ from aiohttp.web_request import BaseRequest
 from demo1.api.demo1_configuration import Demo1Configuration
 from demo1.api.demo1_error import Demo1Error
 from demo1.api.demo1_version import Demo1Version
+from demo1.api.endpoints.google_drive_files import GoogleDriveFiles
 from demo1.api.parallel.scheduled_thread_pool_executor import \
     ScheduledThreadPoolExecutor
 from demo1.api.process_controller import ProcessController
@@ -269,7 +270,8 @@ class FlutterBundle(object):
         return None
 
     def process(self, path: str, application_path: Optional[str] = None) -> web.Response:
-        file_path = '.' + (path[len(application_path):] if application_path else path)
+        file_path = '.' + (path[len(application_path):]
+                           if application_path else path)
         _, file_extension = os.path.splitext(path)
         # Auto-append index.html for folders
         if not file_extension:
@@ -283,7 +285,8 @@ class FlutterBundle(object):
                 body=content)
 
     def has_path(self, path: str, application_path: str = None):
-        file_path = (path[len(application_path):] if application_path else path)
+        file_path = (path[len(application_path):]
+                     if application_path else path)
         return file_path in self.pathmap
 
     def release(self):
@@ -308,6 +311,8 @@ class PresenterHandler:
             return PresenterHandler.pr1_bundle.process(path)
         elif path.startswith('/demo1') and PresenterHandler.demo1_bundle.has_path(path, '/demo1'):
             return PresenterHandler.demo1_bundle.process(path, '/demo1')
+        elif path.startswith('/demo1/api/files'):
+            return GoogleDriveFiles.process(path, request.query, '/demo1')
         elif path == '/stream.mjpg':
             self.send_response(200)
             self.send_header('Age', 0)
