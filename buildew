@@ -1,62 +1,73 @@
 #!/bin/bash
 
+PYTHON=python3
 # CHECK PYTHON 3
-if command -v python3 &>/dev/null; then
-   echo Python3 available
+if command -v $PYTHON &>/dev/null; then
+    echo Python3 available
 else
-   echo Python3 not available, please install it or add to the PATH variable
-   exit 1
+    echo Python3 not available, please install it or add to the PATH variable
+    exit 1
 fi
 
 # CHECK PIP
-if command -v python3 -m pip &>/dev/null; then
-   echo Pip available
+if command -v $PYTHON -m pip &>/dev/null; then
+    echo Pip available
 else
-   echo Pip not available, please install it or add to the PATH variable
-   exit 1
+    echo Pip not available, please install it or add to the PATH variable
+    exit 1
 fi
 
 # CHECK VIRTUALENV COMMAND
-if command -v python3 -m venv &>/dev/null; then
-   echo Venv command available
+if command -v $PYTHON -m venv &>/dev/null; then
+    echo Venv command available
 else
-   echo Venv not available, please install it [For example: python3 -m pip install python-venv]
-   exit 1
+    echo Venv not available, please install it [For example: python3 -m pip install python-venv]
+    exit 1
 fi
 
 
 COMMAND=$1
 PYTHON_VERSION=3
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+    --python-version)
+        PYTHON_VERSION="$2"
+        shift
+        shift
+        ;;
+    *)
+        COMMAND=$1
+        shift
+        break
+        ;;
+    esac
+    shift
+done
 # CHECK VENV NOT EXISTS
 if [ ! -d .venv ]; then
-    while [[ "$#" -gt 0 ]]; do
-        case $1 in
-            --python-version) PYTHON_VERSION="$2"; shift ;;
-            *) COMMAND=$1; break ;;
-        esac
-        shift
-    done
 
-    python3 -m venv .venv
+    $PYTHON -m venv .venv
+    if [ ! -d .pip ]; then
+        mkdir .pip
+        curl https://bootstrap.pypa.io/get-pip.py -o .pip/get-pip.py
+    fi
+    .venv/bin/python3 .pip/get-pip.py
     .venv/bin/pip3 install -r requirements.txt
-    .venv/bin/pip3 install -r test-requirements.txt
+    .venv/bin/pip3 install -r requirements-tests.txt
+    .venv/bin/pip3 install -r requirements-dev.txt
 fi
 
 if [ -f '.buildew' ]; then
-	echo Use .buildew file to read sensitive information
-	while IPS='=' read -r key value; do
-        #echo $key, $value
-		#key=$(echo $key | tr '.' '_')
-		#eval ${key}=\${value::1}
+    echo Use .buildew file to read sensitive information
+    while IPS='=' read -r key value; do
         eval ${key}
-	done < '.buildew'
+    done <'.buildew'
 else
     # REGENERATE SENSITIVE INFO FROM TEMPLATE
-    cat >'.buildew'<< EOF
-AWS_ACCOUNT=1234567.dkr.ecr.us-east-2.amazonaws.com
+    cat >'.buildew' <<EOF
+AWS_ACCOUNT=1234567890.dkr.ecr.us-east-x.amazonaws.com
 AWS_PROFILE=devops.user
-AWS_REGION=us-east-2
-
+AWS_REGION=us-east-x
 EOF
 fi
 
@@ -139,8 +150,19 @@ if [ "x$COMMAND" == "xdeploy" ]; then
     cd $CURRENT_FOLDER
 fi
 
+if [ "x$COMMAND" == "xredeps" ]; then
+    echo "Reinstall dependencies"
+    .venv/bin/pip3 install -r requirements.txt
+    .venv/bin/pip3 install -r requirements-tests.txt
+    .venv/bin/pip3 install -r requirements-dev.txt
+fi
 
-AVAILABLE_COMMANDS="build run stop deploy dev"
+if [ "x$COMMAND" == "xclean" ]; then
+    echo "Clean temporary folders"
+    find . -name __pycache__ | xargs rm -fr
+fi
+
+AVAILABLE_COMMANDS="build run stop deploy dev clean"
 echo ''
 [[ $AVAILABLE_COMMANDS =~ (^| )$COMMAND($| ) ]] && echo 'Ok' || echo 'Unknown command: ' "$COMMAND" && echo 'Available commands are: ' "$AVAILABLE_COMMANDS"
 

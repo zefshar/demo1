@@ -1,12 +1,12 @@
 import signal
 import threading
 
-from demo1.api.utils import print_threads
-from demo1.api.demo1_version import Demo1Version
 from demo1.api.demo1_error import Demo1Error
+from demo1.api.demo1_version import Demo1Version
+from demo1.api.utils import print_threads
 
 
-class Demo1ProcessController:
+class ProcessController:
     """
     System signal mapper on internal state variable
     """
@@ -43,4 +43,3 @@ class Demo1ProcessController:
         Set immediately stop mode
         """
         self.kill_now = True
-
