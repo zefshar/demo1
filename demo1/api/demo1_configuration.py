@@ -1,9 +1,10 @@
-from os import stat, curdir
-from os.path import abspath, exists
-from pathlib import Path
-from typing import Optional
-from datetime import datetime
 from configparser import ConfigParser
+from datetime import datetime
+from os import curdir, stat
+from os.path import abspath, exists, expanduser, join
+from pathlib import Path
+from typing import List, Optional
+
 
 class Demo1Configuration(ConfigParser):
 
@@ -30,12 +31,23 @@ class Demo1Configuration(ConfigParser):
 
         self.__application_folder = self.ini_file_folder if self.ini_file_folder else curdir
 
-
-    def set_http_port(self, value: int) -> None:
+    def set_port(self, value: int) -> None:
         self.set('default', 'port', value=str(value))
 
-    def get_http_port(self) -> int:
-        return self.getint('default', 'port', fallback=8080)
+    def get_port(self) -> int:
+        return self.getint('default', 'port', fallback=8000)
+
+    def set_ssl_enable(self, value: bool) -> None:
+        self.set('default', 'ssl_enable', value=str(value))
+
+    def is_ssl_enable(self) -> bool:
+        return self.getboolean('default', 'ssl_enable', fallback=False)
+
+    def set_keys_folder(self, value: str) -> None:
+        self.set('default', 'keys_folder', value=str(value))
+
+    def get_keys_folder(self) -> bool:
+        return self.get('default', 'keys_folder', fallback=join(expanduser("~"), '.ssl'))
 
     def set_setup_mode(self, value: bool) -> None:
         self.set('default', 'setup_mode', value=str(value))

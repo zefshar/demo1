@@ -1,5 +1,3 @@
-import argparse
-import asyncio
 import base64
 import datetime
 import io
@@ -17,9 +15,11 @@ import urllib
 from asyncio import Condition, new_event_loop, set_event_loop
 from asyncio.events import AbstractEventLoop
 from concurrent.futures._base import Future
-from http import server
+from os.path import expanduser, join
+from ssl import PROTOCOL_SSLv23, SSLContext
 from threading import current_thread
 from typing import Optional
+from zipfile import ZipFile
 
 from aiohttp import web
 from aiohttp.web_request import BaseRequest
@@ -428,14 +428,25 @@ class StatePresenter:
         self.demo1_configuration = demo1_configuration
 
     @classmethod
-    async def _serve_until_stop_signal(cls, host: str, port: int):
+    def _get_ssl_context(cls, keys_folder: str):
+        ssl_context = SSLContext(PROTOCOL_SSLv23)
+        # Unpack zip archive and extract certificate and key
+        with ZipFile(join(keys_folder, 'zefshar.com.zip'), 'r') as archive:
+            archive.extractall(keys_folder)
+        ssl_context.load_cert_chain(join(keys_folder, 'certificate.crt'), join(
+            keys_folder, 'private.key'))
+        return ssl_context
+
+    @classmethod
+    async def _serve_until_stop_signal(cls, host: str, http_port: int, enable_ssl: bool, keys_folder: str):
         if not current_thread().isDaemon():
             raise Demo1Error('Thread not a daemon')
         current_thread().setName('http-thread')
         server = web.Server(PresenterHandler().do_GET)
         runner = web.ServerRunner(server)
         await runner.setup()
-        site = web.TCPSite(runner, host, port)
+        site = web.TCPSite(runner, host, http_port, ssl_context=(
+            cls._get_ssl_context(keys_folder) if enable_ssl else None))
         await site.start()
 
         await cls.stop_condition.acquire()
@@ -446,14 +457,16 @@ class StatePresenter:
             cls.stop_condition.release()
 
     @classmethod
-    def serve(cls, request_timeout: int = 1, handler=None, port: int = 0, host: str = 'localhost'):
+    def serve(cls, request_timeout: int = 1, handler=None,
+              port: int = 8000, host: str = 'localhost',
+              enable_ssl: bool = False, keys_folder: str = join(expanduser("~"), '.ssl')):
         if cls.event_loop:
             raise Demo1Error('Another event loop is active')
         cls.event_loop = new_event_loop()
         cls.stop_condition = Condition(loop=cls.event_loop)
         set_event_loop(cls.event_loop)
         cls.event_loop.run_until_complete(
-            cls._serve_until_stop_signal(host, port))
+            cls._serve_until_stop_signal(host, port, enable_ssl, keys_folder))
 
     @classmethod
     def not_serve(cls):
@@ -480,9 +493,11 @@ class StatePresenter:
         demo1_state_controller.create()
         try:
             self.logger.info(
-                f'Start web-server on port {self.demo1_configuration.get_http_port()}')
-            self.serve(request_timeout=1,
-                       port=self.demo1_configuration.get_http_port())
+                f'Start web-server on port {self.demo1_configuration.get_port()}, '
+                f'{"ssl enable" if self.demo1_configuration.is_ssl_enable() else ""}')
+            self.serve(request_timeout=1, port=self.demo1_configuration.get_port(),
+                       enable_ssl=self.demo1_configuration.is_ssl_enable(),
+                       keys_folder=self.demo1_configuration.get_keys_folder())
         except Exception as ex:
             self.logger.error(ex, exc_info=True)
         finally:

@@ -6,7 +6,7 @@ from unittest import TestCase
 from authmouse import AuthMouse
 
 
-class TestCameraAdapter(TestCase):
+class TestAuthMouse(TestCase):
 
     def setUp(self) -> None:
         # Copy create init file for test

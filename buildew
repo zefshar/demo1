@@ -136,18 +136,19 @@ if [ "x$COMMAND" == "xdeploy" ]; then
     aws ecr get-login-password --profile $AWS_PROFILE --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT
     mkdir -p .prebuild
     cp -fr ~/.demo1 .prebuild
+    cp -fr ~/.ssl/zefshar.com.zip .prebuild/.demo1/
     docker build -t demo1 .
-    rm -fr .prebuild
+    # rm -fr .prebuild
     docker tag demo1:latest $AWS_ACCOUNT/demo1:latest
     docker push $AWS_ACCOUNT/demo1:latest
 
-    echo Deploy monitor lambda to the AWS
-    echo AWS_PROFILE is $AWS_PROFILE
-    echo AWS_REGION is $AWS_REGION
-    CURRENT_FOLDER=$PWD
-    cd monitor
-    AWS_PROFILE=$AWS_PROFILE sls deploy --profile $AWS_PROFILE --region $AWS_REGION
-    cd $CURRENT_FOLDER
+    #echo Deploy monitor lambda to the AWS
+    #echo AWS_PROFILE is $AWS_PROFILE
+    #echo AWS_REGION is $AWS_REGION
+    #CURRENT_FOLDER=$PWD
+    #cd monitor
+    #AWS_PROFILE=$AWS_PROFILE sls deploy --profile $AWS_PROFILE --region $AWS_REGION
+    #cd $CURRENT_FOLDER
 fi
 
 if [ "x$COMMAND" == "xredeps" ]; then

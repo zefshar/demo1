@@ -26,4 +26,5 @@ ENV PYTHONPATH "${PYTHONPATH}:/usr/local/lib/python3.8/site-packages:/app"
 
 # RUN ls -la /app
 RUN ls -la /usr/local/lib/python3.8/site-packages
-CMD ["python3", "-m", "demo1.api.demo1", "-p", "80"]
+EXPOSE 443
+CMD ["python3", "-m", "demo1.api.demo1", "-p", "443", "-k", "/root/.demo1"]

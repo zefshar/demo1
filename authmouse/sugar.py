@@ -12,8 +12,6 @@ class Sugar(object):
 
     def __getattr__(self, item):
         result = getattr(self.contained, item)
-        #if callable(result):
-        #    result = Sugar(result)
         return result
 
     def __repr__(self):
