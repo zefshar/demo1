@@ -49,6 +49,12 @@ class Demo1Configuration(ConfigParser):
     def get_keys_folder(self) -> bool:
         return self.get('default', 'keys_folder', fallback=join(expanduser("~"), '.ssl'))
 
+    def set_host(self, value: str) -> None:
+        self.set('default', 'host', value=str(value))
+
+    def get_host(self) -> bool:
+        return self.get('default', 'host', fallback='127.0.0.1')
+
     def set_setup_mode(self, value: bool) -> None:
         self.set('default', 'setup_mode', value=str(value))
 

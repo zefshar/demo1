@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PYTHON=python3
+PYTHON=python3.9
 # CHECK PYTHON 3
 if command -v $PYTHON &>/dev/null; then
     echo Python3 available
@@ -27,7 +27,7 @@ fi
 
 
 COMMAND=$1
-PYTHON_VERSION=3
+PYTHON_VERSION=3.9
 while [[ "$#" -gt 0 ]]; do
     case $1 in
     --python-version)
@@ -77,6 +77,15 @@ echo =========== $COMMAND
 echo $COMMAND ===========
 echo COMMAND
 
+function docker_build {
+    echo "Build docker image $1"
+    mkdir -p .prebuild
+    cp -fr ~/.demo1 .prebuild
+    cp -fr ~/.ssl/zefshar.com.zip .prebuild/.demo1/
+    docker build -t $1 .
+    rm -fr .prebuild
+}
+
 function build {
     CURRENT_FOLDER=$PWD
     cd demo1-frontend
@@ -89,11 +98,8 @@ function build {
     cd $CURRENT_FOLDER
     tar -cf pr1.flutter -C pr1/build/web .
 
-    echo 'Build docker image'
-    mkdir -p .prebuild
-    cp -fr ~/.demo1 .prebuild
-    docker build -t demo1/demo1:v1 .
-    rm -fr .prebuild
+    docker_build 'demo1/demo1:v1'
+
 }
 
 
@@ -115,8 +121,9 @@ fi
 
 if [ "x$COMMAND" == "xrun" ]; then
     echo 'Run docker image'
+    docker container stop demo1
     docker container rm demo1
-    docker run -p 80 -l demo1 --name demo1 demo1/demo1:v1
+    docker run -p 443 -l demo1 --name demo1 demo1/demo1:v1
 fi
 
 if [ "x$COMMAND" == "xstop" ]; then
@@ -134,13 +141,14 @@ if [ "x$COMMAND" == "xdeploy" ]; then
     echo AWS_PROFILE is $AWS_PROFILE
     echo AWS_REGION is $AWS_REGION
     aws ecr get-login-password --profile $AWS_PROFILE --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT
-    mkdir -p .prebuild
-    cp -fr ~/.demo1 .prebuild
-    cp -fr ~/.ssl/zefshar.com.zip .prebuild/.demo1/
-    docker build -t demo1 .
-    # rm -fr .prebuild
+    docker_build 'demo1'
     docker tag demo1:latest $AWS_ACCOUNT/demo1:latest
     docker push $AWS_ACCOUNT/demo1:latest
+
+    # Asyncio issue
+    # https://forums.aws.amazon.com/thread.jspa?threadID=323670
+    # Add a pseudo terminal in the Fargate Task definition (can only be added through Configure via JSON) with the following setting:
+    # "pseudoTerminal": true
 
     #echo Deploy monitor lambda to the AWS
     #echo AWS_PROFILE is $AWS_PROFILE
