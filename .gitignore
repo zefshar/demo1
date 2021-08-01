@@ -3,11 +3,13 @@
 .history
 .vscode
 wandb
+
+# Temporare files
 .venv
-
-
+.pip
 __pycache__
 *.pickle
+.ipynb_checkpoints
 
 # Datasets
 yelp_academic_dataset_business.json

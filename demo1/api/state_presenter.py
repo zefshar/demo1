@@ -12,7 +12,7 @@ import tarfile
 import time
 import traceback
 import urllib
-from asyncio import Condition, new_event_loop, set_event_loop, get_event_loop
+from asyncio import Condition, get_event_loop, new_event_loop, set_event_loop
 from asyncio.events import AbstractEventLoop
 from concurrent.futures._base import Future
 from os.path import expanduser, join
@@ -28,6 +28,7 @@ from demo1.api.demo1_configuration import Demo1Configuration
 from demo1.api.demo1_error import Demo1Error
 from demo1.api.demo1_version import Demo1Version
 from demo1.api.endpoints.google_drive_files import GoogleDriveFiles
+from demo1.api.flutter_bundle import FlutterBundle
 from demo1.api.parallel.scheduled_thread_pool_executor import \
     ScheduledThreadPoolExecutor
 from demo1.api.process_controller import ProcessController
@@ -222,80 +223,6 @@ class Demo1StateController(object):
 demo1_state_controller = Demo1StateController()
 
 
-class FlutterBundle(object):
-
-    def __init__(self, bundle_name: str, folders: list = []):
-        super().__init__()
-        self.logger = logging.getLogger(self.__class__.__name__)
-        self.bundle_file_path = self.__find(folders, bundle_name + '.flutter')
-        self.pathmap = {}
-        self.file_object = None
-        self.tar_file = None
-        if self.bundle_file_path:
-            file = open(self.bundle_file_path, 'rb')
-            self.file_object = mmap.mmap(
-                file.fileno(), 0, access=mmap.ACCESS_READ)
-            self.tar_file = tarfile.open(mode='r', fileobj=self.file_object)
-            for file_path in self.tar_file.getnames():
-                file_path = file_path[1:]
-                if file_path:
-                    self.pathmap[file_path] = self.process
-        self.content_types = {
-            '.html': 'text/html',
-            '.css': 'text/css',
-            '.js': 'text/javascript',
-            '.apng': 'image/apng',
-            '.png': 'image/png',
-            '.svg': 'image/svg',
-            '.ico': 'image/ico',
-            '.jpeg': 'image/jpeg',
-            '.gif': 'image/gif',
-            '.json': APPLICATION_JSON,
-            '.tiff': 'image/tiff',
-            '.webp': 'image/webp',
-            '.ttf': 'font/ttf',
-            '.otf': 'font/otf',
-            '.woff': 'font/woff',
-            '.woff2': 'font/woff2',
-        }
-        self.logger.info('FlutterBundle finish initialization')
-
-    def __find(self, folders: list, file_name: str):
-        for folder in folders:
-            if os.path.exists(folder):
-                for root, _, files in os.walk(folder, followlinks=True):
-                    for _name in files:
-                        if _name == file_name:
-                            return os.path.abspath(os.path.join(root, file_name))
-        return None
-
-    def process(self, path: str, application_path: Optional[str] = None) -> web.Response:
-        file_path = '.' + (path[len(application_path):]
-                           if application_path else path)
-        _, file_extension = os.path.splitext(path)
-        # Auto-append index.html for folders
-        if not file_extension:
-            file_path += '/index.html'
-            file_extension = '.html'
-        with self.tar_file.extractfile(file_path) as entry:
-            content = entry.read()
-            return web.Response(status=200, headers={
-                'Content-Type': self.content_types[file_extension],
-                'Content-Length': str(len(content))},
-                body=content)
-
-    def has_path(self, path: str, application_path: str = None):
-        file_path = (path[len(application_path):]
-                     if application_path else path)
-        return file_path in self.pathmap
-
-    def release(self):
-        if self.tar_file:
-            self.tar_file.close()
-        if self.file_object:
-            self.file_object.close()
-
-
 class PresenterHandler:
 
     flutter_bundle = None
@@ -484,7 +411,7 @@ class StatePresenter:
     def not_serve(self):
         if self.event_loop:
             if self.stop_condition:
-               get_event_loop().run_until_complete(self._stop_signal())
+                get_event_loop().run_until_complete(self._stop_signal())
             self.event_loop.stop()
             self.event_loop = None
 

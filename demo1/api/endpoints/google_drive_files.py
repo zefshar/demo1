@@ -8,6 +8,8 @@ class GoogleDriveFiles:
 
     @classmethod
     def process(cls, path: str, query: dict, application_path: str = None) -> web.Response:
+        """/api/files?
+        """
         folder_id = next(iter(query.keys()))
         content = dumps(
             {}).encode('utf-8')
