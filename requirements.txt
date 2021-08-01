@@ -8,3 +8,5 @@ google-auth-oauthlib
 # AIOHTTP
 aiohttp
 oauthlib
+# Cryptography (fro replacement google dependencies)
+PyCryptodome

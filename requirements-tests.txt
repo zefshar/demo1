@@ -1,7 +1,7 @@
 tensorflow
 keras
 pandas
-numpy==1.18.1
+numpy
 pillow
 wandb
 h5py

@@ -1,7 +1,12 @@
 from typing import List
-from authmouse.sugar import Sugar
+from amouse.sugar import Sugar
 
 class AuthMouse():
+    """Wrapper for the client
+
+     - That adds addition functionality for get token.
+       It executes in background during basic request.
+    """
 
     def __init__(self,
         client_id: str = None,

@@ -1,4 +1,6 @@
 class Sugar(object):
+    """Client proxy
+    """
 
     def __init__(self, mouse, value):
         self.mouse = mouse
