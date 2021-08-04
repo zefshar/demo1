@@ -3,16 +3,16 @@ import hashlib
 import hmac
 import json
 from asyncio import get_event_loop
+from datetime import datetime, timedelta
 from os import environ
 from unittest import TestCase
-
-from Crypto.Signature import pkcs1_15
-from Crypto.Hash import SHA256
-from Crypto.PublicKey import RSA
 
 from aiohttp import ClientSession
 from aiohttp.formdata import FormData
 from amouse import AuthMouse
+from Crypto.Hash import SHA256
+from Crypto.PublicKey import RSA
+from Crypto.Signature import pkcs1_15
 
 
 class TestAuthMouse(TestCase):
@@ -51,45 +51,47 @@ class TestAuthMouse(TestCase):
     def test_get_token_by_service_account(self):
 
         async def test_get_token_async():
-            client_session = ClientSession()
-
-            header = {'typ': 'JWT', 'alg': 'HS256'}
+            header = {'typ': 'JWT', 'alg': 'RS256'}
             header = base64.b64encode(json.dumps(header).encode()).decode()
+            current_date_time_in_utc = datetime.now()
             payload = {
                 'iss': environ['service_account'],
                 'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly',
                 'aud': "https://oauth2.googleapis.com/token",
-                'exp': 1328554385,
-                'iat': 1328550785
+                'exp': int((current_date_time_in_utc + timedelta(hours=1)).timestamp()),
+                'iat': int(current_date_time_in_utc.timestamp())
             }
-            payload = base64.b64encode(json.dumps(header).encode()).decode()
+            payload = base64.b64encode(json.dumps(payload).encode()).decode()
             message = header + '.' + payload
 
-            secret = 'suibianxie'
-            h_obj = hmac.new(secret.encode(), message.encode(), hashlib.sha256)
-            signature = h_obj.hexdigest()
+            with open(environ['private_key_path'], 'r') as reader:
+                private_key = json.loads(reader.read())['private_key']
+            key = RSA.import_key(private_key)
+            h_obj = SHA256.new(message.encode())
+            signature = pkcs1_15.new(key).sign(h_obj)
+            signature = base64.b64encode(signature).decode()
 
             form_data = FormData()
             form_data.add_field(
                 'grant_type', 'urn:ietf:params:oauth:grant-type:jwt-bearer')
             form_data.add_field('assertion', message+'.'+signature)
 
-            key = RSA.import_key(open('private_key.der').read())
-            h = SHA256.new(message)
-            signature = pkcs1_15.new(key).sign(h)
+            async with ClientSession() as client_session:
+                response = await client_session.post('https://oauth2.googleapis.com/token',
+                                                     data=form_data)
+                response_json = await response.json()
 
-            response = await client_session.post('https://oauth2.googleapis.com/token',
-                                                 data=form_data)
-            response_json = await response.json()
+                if not(response.status == 200):
+                    raise Exception(
+                        f'Token request returns error: {response_json}')
 
-            if not(response.status == 200):
-                raise Exception(f'Token request returns error: {response_json}')
-
-            access_token = response_json['access_token']
-            return ClientSession().get(f'https://www.googleapis.com/drive/v3/files?q=%221vbuT3Ye50ihdOHe3UVaOeiQhT4t5KN8n%22%20in%20parents&access_token={access_token}')
+                access_token = response_json['access_token']
+                async with client_session.get(f'https://www.googleapis.com/drive/v3/files?q=%221vbuT3Ye50ihdOHe3UVaOeiQhT4t5KN8n%22%20in%20parents&access_token={access_token}') as response:
+                    return {'status': response.status, 'json': await response.json()}
 
         loop = get_event_loop()
         result = loop.run_until_complete(test_get_token_async())
         loop.close()
 
-        self.assertEqual(result.status, 200)
+        print(f'API call result is {result["json"]}')
+        self.assertEqual(result['status'], 200)

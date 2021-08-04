@@ -71,6 +71,8 @@ AWS_REGION=us-east-x
 client_id=<client id from google developers console>
 client_secret=<client secret from google developers console>
 api_key=<api key from google developers console>
+service_account=<service account from google developer console>
+private_key_path=.private/<google file name>.json
 EOF
 fi
 
@@ -92,12 +94,12 @@ function docker_build {
 function build {
     CURRENT_FOLDER=$PWD
     cd demo1-frontend
-    flutter build web
+    flutter build web --release
     cd $CURRENT_FOLDER
     tar -cf demo1.flutter -C demo1-frontend/build/web .
 
     cd pr1
-    flutter build web --web-renderer canvaskit
+    flutter build web --web-renderer canvaskit --release
     cd $CURRENT_FOLDER
     tar -cf pr1.flutter -C pr1/build/web .
 

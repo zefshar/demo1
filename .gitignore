@@ -19,3 +19,4 @@ yelp_academic_dataset_business.json
 
 # Sensitive info
 .buildew
+.private
