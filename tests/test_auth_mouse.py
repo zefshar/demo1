@@ -30,23 +30,50 @@ class TestAuthMouse(TestCase):
             for key, value in [key_value_string.split('=') for key_value_string in reader.read().split('\n') if '=' in key_value_string]:
                 environ[key.strip(' ')] = value.strip(' ')
 
-    def test_get_token(self):
+    def test_get_token_direct_flow(self):
 
         async def test_get_token_async():
-            return await AuthMouse(
-                client_id=environ['client_id'],
-                client_secret=environ['client_secret'],
-                scope=['https://www.googleapis.com/auth/drive.metadata.readonly'],
-                user_agent='TestAuthMouse',
-                oauth_displayname='TestAuthMouse',
-                api_key=environ['api_key']
-            ).client(ClientSession()).get('https://www.googleapis.com/drive/v3/files?q=%221vbuT3Ye50ihdOHe3UVaOeiQhT4t5KN8n%22%20in%20parents')
+            with open(environ['private_key_path'], 'r') as reader:
+                private_key = json.loads(reader.read())['private_key']
+
+            async with ClientSession() as client_session:
+                response = await AuthMouse(
+                    service_account=environ['service_account'],
+                    private_key=private_key,
+                    scope='https://www.googleapis.com/auth/drive.metadata.readonly'
+                ).client(client_session).get('https://www.googleapis.com/drive/v3/files?q=%221vbuT3Ye50ihdOHe3UVaOeiQhT4t5KN8n%22%20in%20parents')
+                return {'status': response.status, 'json': await response.json()}
 
         loop = get_event_loop()
         result = loop.run_until_complete(test_get_token_async())
         loop.close()
 
-        self.assertEqual(result.status, 200)
+        self.assertEqual(result['status'], 200)
+
+    def test_get_token_indirect_flow(self):
+
+        async def test_get_token_async():
+            with open(environ['private_key_path'], 'r') as reader:
+                private_key = json.loads(reader.read())['private_key']
+
+            a_mouse = AuthMouse(
+                service_account=environ['service_account'],
+                private_key=private_key,
+                scope='https://www.googleapis.com/auth/drive.metadata.readonly'
+            )
+
+            result = await a_mouse.client(ClientSession()).get('https://www.googleapis.com/drive/v3/files?q=%221vbuT3Ye50ihdOHe3UVaOeiQhT4t5KN8n%22%20in%20parents')
+            access_token = a_mouse.access_token
+
+            async with ClientSession() as client_session:
+                async with client_session.get(f'https://www.googleapis.com/drive/v3/files?q=%221vbuT3Ye50ihdOHe3UVaOeiQhT4t5KN8n%22%20in%20parents&access_token={access_token}') as response:
+                    return {'status': response.status, 'json': await response.json()}
+
+        loop = get_event_loop()
+        result = loop.run_until_complete(test_get_token_async())
+        loop.close()
+
+        self.assertEqual(result['status'], 200)
 
     def test_get_token_by_service_account(self):
 
