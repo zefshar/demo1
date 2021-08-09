@@ -1,6 +1,6 @@
 from configparser import ConfigParser
 from datetime import datetime
-from os import curdir, stat
+from os import curdir, environ, stat
 from os.path import abspath, exists, expanduser, join
 from pathlib import Path
 from typing import List, Optional
@@ -30,6 +30,13 @@ class Demo1Configuration(ConfigParser):
             self.source_full_file_name = ini_file_full_path
 
         self.__application_folder = self.ini_file_folder if self.ini_file_folder else curdir
+        self.__google_service_account = None
+        self.__google_private_key_json = None
+
+    def refresh_environ(self):
+        environ['google_private_key_path'] = join(
+            self.get_keys_folder(), self.get_google_private_key_json())
+        environ['google_service_account'] = self.get_google_service_account()
 
     def set_port(self, value: int) -> None:
         self.set('default', 'port', value=str(value))
@@ -46,7 +53,7 @@ class Demo1Configuration(ConfigParser):
     def set_keys_folder(self, value: str) -> None:
         self.set('default', 'keys_folder', value=str(value))
 
-    def get_keys_folder(self) -> bool:
+    def get_keys_folder(self) -> str:
         return self.get('default', 'keys_folder', fallback=join(expanduser("~"), '.ssl'))
 
     def set_host(self, value: str) -> None:
@@ -61,8 +68,20 @@ class Demo1Configuration(ConfigParser):
     def get_setup_mode(self) -> bool:
         return self.getboolean('default', 'setup_mode', fallback=True)
 
-    def get_application_folder(self):
+    def get_application_folder(self) -> Optional[str]:
         return self.__application_folder
 
     def set_application_folder(self, application_folder: str):
         self.__application_folder = application_folder
+
+    def get_google_service_account(self) -> Optional[str]:
+        return self.__google_service_account
+
+    def set_google_service_account(self, google_service_account: str):
+        self.__google_service_account = google_service_account
+
+    def get_google_private_key_json(self) -> Optional[str]:
+        return self.__google_private_key_json
+
+    def set_google_private_key_json(self, google_private_key_json: str):
+        self.__google_private_key_json = google_private_key_json

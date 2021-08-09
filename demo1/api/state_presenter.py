@@ -239,7 +239,7 @@ class PresenterHandler:
         elif path.startswith('/demo1') and PresenterHandler.demo1_bundle.has_path(path, '/demo1'):
             return PresenterHandler.demo1_bundle.process(path, '/demo1')
         elif path.startswith('/demo1/api/files'):
-            return GoogleDriveFiles.process(path, request.query, '/demo1')
+            return await GoogleDriveFiles.process(path, request.query, '/demo1')
         elif path == '/stream.mjpg':
             self.send_response(200)
             self.send_header('Age', 0)

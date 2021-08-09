@@ -51,6 +51,10 @@ if __name__ == "__main__":
             '-k', '--keys-folder', help='Specify folder where keys archive placed.', default=join(expanduser("~"), '.ssl'))
         parser.add_argument(
             '-a', '--host', help='Specify host for port allocation.', default='127.0.0.1')
+        parser.add_argument(
+            '-g1', '--google-service-account', help='Specify service account from google cloud console.', default=None)
+        parser.add_argument(
+            '-g2', '--google-private-key-json', help='Specify a name for private key JSON. Key should be download from google cloud console.', default=None)
 
         args = parser.parse_args()
         demo1_configuration.set_port(int(args.http_or_https_port))
@@ -58,6 +62,12 @@ if __name__ == "__main__":
             str(args.http_or_https_port)[-1] == '3')
         demo1_configuration.set_keys_folder(args.keys_folder)
         demo1_configuration.set_host(args.host)
+
+        demo1_configuration.set_google_service_account(args.google_service_account)
+        demo1_configuration.set_google_private_key_json(args.google_private_key_json)
+
+        # UPDATE ENVIRONMENT VARIABLES FROM THE CONFIGURATION
+        demo1_configuration.refresh_environ()
 
         if process_controller.get_kill_now_nowait():
             raise Demo1Error('Catch the external interruption signal')

@@ -12,14 +12,18 @@ from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
 
 
-def _get_private_key():
-    with open(environ['private_key_path'], 'r') as reader:
-        return loads(reader.read())['private_key']
-
-
 class GoogleDriveFiles:
 
-    private_key = _get_private_key()
+    private_key = None
+
+    @classmethod
+    def _get_private_key(cls):
+        if cls.private_key:
+            return cls.private_key
+        with open(environ['google_private_key_path'], 'r') as reader:
+            private_key = loads(reader.read())['private_key']
+            cls.private_key = private_key
+            return private_key
 
     @classmethod
     async def process(cls, path: str, query: dict, application_path: str = None) -> web.Response:
@@ -28,14 +32,12 @@ class GoogleDriveFiles:
         folder_id = next(iter(query.keys()))
 
         async with ClientSession() as client_session:
-
-            a_mouse = AuthMouse(
-                service_account=environ['service_account'],
-                private_key=GoogleDriveFiles.private_key,
+            response = await AuthMouse(
+                service_account=environ['google_service_account'],
+                private_key=cls._get_private_key(),
                 scope='https://www.googleapis.com/auth/drive.metadata.readonly'
-            )
+            ).client(client_session).get(f'https://www.googleapis.com/drive/v3/files?q=%22{folder_id}%22%20in%20parents')
 
-            response = await a_mouse.client(ClientSession()).get(f'https://www.googleapis.com/drive/v3/files?q=%22{folder_id}%22%20in%20parents')
             content = dumps(
                 await response.json()).encode('utf-8')
             return web.Response(status=response.status, body=content, headers={

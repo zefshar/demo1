@@ -59,20 +59,20 @@ fi
 
 if [ -f '.buildew' ]; then
     echo Use .buildew file to read sensitive information
-    while IPS='=' read -r key value; do
-        eval ${key}
-    done <'.buildew'
+    cat '.buildew' > '.buildew.tmp'
+    echo "" >> '.buildew.tmp'
+    while read -r LINE; do
+        eval $LINE
+    done <'.buildew.tmp'
+    rm -fr '.buildew.tmp'
 else
     # REGENERATE SENSITIVE INFO FROM TEMPLATE
     cat >'.buildew' <<EOF
 AWS_ACCOUNT=1234567890.dkr.ecr.us-east-x.amazonaws.com
 AWS_PROFILE=devops.user
 AWS_REGION=us-east-x
-client_id=<client id from google developers console>
-client_secret=<client secret from google developers console>
-api_key=<api key from google developers console>
-service_account=<service account from google developer console>
-private_key_path=.private/<google file name>.json
+google_service_account=<service account from google developer console>
+google_private_key_json=<private key JSON which downloaded from google cloud console>
 EOF
 fi
 
@@ -87,7 +87,8 @@ function docker_build {
     mkdir -p .prebuild
     cp -fr ~/.demo1 .prebuild
     cp -fr ~/.ssl/zefshar.com.zip .prebuild/.demo1/
-    docker build -t $1 .
+    cp -fr .private/* .prebuild/.demo1/
+    docker build --build-arg google_service_account="${google_service_account}" --build-arg google_private_key_json="${google_private_key_json}" -t $1 .
     rm -fr .prebuild
 }
 

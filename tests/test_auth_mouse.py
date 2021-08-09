@@ -13,6 +13,7 @@ from amouse import AuthMouse
 from Crypto.Hash import SHA256
 from Crypto.PublicKey import RSA
 from Crypto.Signature import pkcs1_15
+from demo1.api.demo1_configuration import Demo1Configuration
 
 
 class TestAuthMouse(TestCase):
@@ -29,16 +30,20 @@ class TestAuthMouse(TestCase):
         with open('.buildew', 'r') as reader:
             for key, value in [key_value_string.split('=') for key_value_string in reader.read().split('\n') if '=' in key_value_string]:
                 environ[key.strip(' ')] = value.strip(' ')
+        demo1_configuration = Demo1Configuration()
+        demo1_configuration.set_google_private_key_json(environ['google_private_key_json'])
+        demo1_configuration.set_google_service_account(environ['google_service_account'])
+        demo1_configuration.refresh_environ()
 
     def test_get_token_direct_flow(self):
 
         async def test_get_token_async():
-            with open(environ['private_key_path'], 'r') as reader:
+            with open(environ['google_private_key_path'], 'r') as reader:
                 private_key = json.loads(reader.read())['private_key']
 
             async with ClientSession() as client_session:
                 response = await AuthMouse(
-                    service_account=environ['service_account'],
+                    service_account=environ['google_service_account'],
                     private_key=private_key,
                     scope='https://www.googleapis.com/auth/drive.metadata.readonly'
                 ).client(client_session).get('https://www.googleapis.com/drive/v3/files?q=%221vbuT3Ye50ihdOHe3UVaOeiQhT4t5KN8n%22%20in%20parents')
@@ -53,11 +58,11 @@ class TestAuthMouse(TestCase):
     def test_get_token_indirect_flow(self):
 
         async def test_get_token_async():
-            with open(environ['private_key_path'], 'r') as reader:
+            with open(environ['google_private_key_path'], 'r') as reader:
                 private_key = json.loads(reader.read())['private_key']
 
             a_mouse = AuthMouse(
-                service_account=environ['service_account'],
+                service_account=environ['google_service_account'],
                 private_key=private_key,
                 scope='https://www.googleapis.com/auth/drive.metadata.readonly'
             )
@@ -82,7 +87,7 @@ class TestAuthMouse(TestCase):
             header = base64.b64encode(json.dumps(header).encode()).decode()
             current_date_time_in_utc = datetime.now()
             payload = {
-                'iss': environ['service_account'],
+                'iss': environ['google_service_account'],
                 'scope': 'https://www.googleapis.com/auth/drive.metadata.readonly',
                 'aud': "https://oauth2.googleapis.com/token",
                 'exp': int((current_date_time_in_utc + timedelta(hours=1)).timestamp()),
@@ -91,7 +96,7 @@ class TestAuthMouse(TestCase):
             payload = base64.b64encode(json.dumps(payload).encode()).decode()
             message = header + '.' + payload
 
-            with open(environ['private_key_path'], 'r') as reader:
+            with open(environ['google_private_key_path'], 'r') as reader:
                 private_key = json.loads(reader.read())['private_key']
             key = RSA.import_key(private_key)
             h_obj = SHA256.new(message.encode())
