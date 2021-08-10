@@ -32,12 +32,27 @@ class UpdateRoute53Task(BasicTask):
 
         self.logger.info(f'IP ADDR for {domain_name} is {ip_address}')
 
-        # REQUEST environ['ECS_CONTAINER_METADATA_URI_V4']
-        ecs_container_metadata = requests.get(
-            url=environ['ECS_CONTAINER_METADATA_URI_V4']).json()
-        network_mode = ecs_container_metadata['Networks'][0]['NetworkMode']
-        ecs_ip_address = ecs_container_metadata['Networks'][0]['IPv4Addresses'][0]
-        container_arn = ecs_container_metadata['ContainerARN']
+        # REQUEST CONTAINER METADATA
+        ecs_container_metadata_task = requests.get(
+            url=environ['ECS_CONTAINER_METADATA_URI_V4'] + '/task').json()
+        self.logger.info(f'ecs_container_metadata_task is {ecs_container_metadata_task}')
+        ecs_cluster = ecs_container_metadata_task['Cluster']
+        ecs_task_arn = ecs_container_metadata_task['TaskARN']
+
+        ecs_client = session.client('ecs')
+        tasks_description = ecs_client.describe_tasks(
+            cluster=ecs_cluster,
+            tasks=[ecs_task_arn]
+        )
+        self.logger.info(f'tasks_description is {tasks_description}')
+        eni = {item['name']:item['value'] for item in tasks_description['tasks'][0]['attachments'][0]['details']}.get('networkInterfaceId')
+
+        ec2_client = session.client('ec2')
+        eni_description = ec2_client.describe_network_interfaces(
+            NetworkInterfaceIds=[eni]
+        )
+        self.logger.info(f'eni_description is {eni_description}')
+        ecs_ip_address = eni_description['NetworkInterfaces'][0]['Association']['PublicIp']
 
         if ip_address == ecs_ip_address:
             self.logger.info(
@@ -46,7 +61,7 @@ class UpdateRoute53Task(BasicTask):
         result = route53_client.change_resource_record_sets(
             HostedZoneId=hosted_zone_id,
             ChangeBatch={
-                'Comment': f'Auto generated Record for ECS Fargate. Container arn is ${container_arn}',
+                'Comment': f'Auto generated Record for ECS Fargate. Container task arn is ${ecs_task_arn}',
                 'Changes': [{
                     'Action': 'UPSERT',
                     'ResourceRecordSet': {
@@ -60,4 +75,3 @@ class UpdateRoute53Task(BasicTask):
             }
         )
         self.logger.info(f'NEW IP ADDR for {domain_name} is {ecs_ip_address}')
-
