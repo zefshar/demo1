@@ -24,6 +24,16 @@ from demo1.api.parallel.scheduled_thread_pool_executor import \
     ScheduledThreadPoolExecutor
 from demo1.api.process_controller import ProcessController
 from demo1.api.state_presenter import StatePresenter
+from demo1.api.tasks.maintenance import UpdateRoute53Task
+
+
+def log_exception(future: Future):
+    if future.exception():
+        logging.getLogger().error('Background task error', exc_info=(
+            type(future.exception()), future.exception(), future.exception().__traceback__))
+    else:
+        logging.getLogger().info('Success execution of background task')
+
 
 if __name__ == "__main__":
     print(f'{Demo1Version.standard()} start')
@@ -63,10 +73,13 @@ if __name__ == "__main__":
         demo1_configuration.set_keys_folder(args.keys_folder)
         demo1_configuration.set_host(args.host)
 
-        demo1_configuration.set_google_service_account(args.google_service_account)
-        demo1_configuration.set_google_private_key_json(args.google_private_key_json)
+        demo1_configuration.set_google_service_account(
+            args.google_service_account)
+        demo1_configuration.set_google_private_key_json(
+            args.google_private_key_json)
 
         # UPDATE ENVIRONMENT VARIABLES FROM THE CONFIGURATION
+        demo1_configuration.log_environ(logging.INFO)
         demo1_configuration.refresh_environ()
 
         if process_controller.get_kill_now_nowait():
@@ -76,8 +89,13 @@ if __name__ == "__main__":
                                                 thread_name_prefix='main-thread')
         # SENSOR STATE PRESENTER
         demo1_state_presenter = StatePresenter(demo1_configuration)
-        demo1_state_presenter_thread = Thread(target=demo1_state_presenter.start, daemon=True)
+        demo1_state_presenter_thread = Thread(
+            target=demo1_state_presenter.start, daemon=True)
         demo1_state_presenter_thread.start()
+
+        # MAINTENACE TASKS
+        main_pool.submit(UpdateRoute53Task().execute).add_done_callback(
+            log_exception)
 
         # END OF TASKS CONFIGURATION
         logger.debug('Wait for os signal, start time: %s',

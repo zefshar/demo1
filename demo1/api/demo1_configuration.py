@@ -4,6 +4,7 @@ from os import curdir, environ, stat
 from os.path import abspath, exists, expanduser, join
 from pathlib import Path
 from typing import List, Optional
+import logging
 
 
 class Demo1Configuration(ConfigParser):
@@ -32,6 +33,12 @@ class Demo1Configuration(ConfigParser):
         self.__application_folder = self.ini_file_folder if self.ini_file_folder else curdir
         self.__google_service_account = None
         self.__google_private_key_json = None
+
+        self.logger = logging.getLogger(self.__class__.__name__)
+
+    def log_environ(self, log_level: int) -> None:
+        self.logger.log(log_level, 'ENVIRONMENT VARIABLES ARE:\n' +
+            '\n'.join([f'{k}: {v}' for k, v in sorted(environ.items())]))
 
     def refresh_environ(self):
         environ['google_private_key_path'] = join(

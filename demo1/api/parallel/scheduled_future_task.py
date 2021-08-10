@@ -37,7 +37,7 @@ class ScheduledFutureTask(object):
          * A negative value indicates fixed-delay execution.
          * A value of 0 indicates a non-repeating (one-shot) task.
         """
-        self.id = self.__identity_or_none(fn and fn.__self__ and hasattr(fn.__self__, 'id') and fn.__self__.id)
+        self.id = self.__identity_or_none(fn and hasattr(fn, '__self__') and hasattr(fn.__self__, 'id') and fn.__self__.id)
         self.fn = fn
         self.args = args
         self.kwargs = kwargs

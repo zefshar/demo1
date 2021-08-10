@@ -71,6 +71,8 @@ else
 AWS_ACCOUNT=1234567890.dkr.ecr.us-east-x.amazonaws.com
 AWS_PROFILE=devops.user
 AWS_REGION=us-east-x
+AWS_HOSTED_ZONE_ID=Z00000000000000000000
+AWS_DNS_RECORD_START=www
 google_service_account=<service account from google developer console>
 google_private_key_json=<private key JSON which downloaded from google cloud console>
 EOF
