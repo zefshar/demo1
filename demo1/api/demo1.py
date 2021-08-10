@@ -40,12 +40,11 @@ if __name__ == "__main__":
     # root logger
     logging.basicConfig(
         format='[%(levelname)-8s] [%(threadName)-11s] %(message)s',
-        encoding='utf-8', level=logging.DEBUG)
-    logger = logging.getLogger()
-    logger.addHandler(logging.StreamHandler(sys.stdout))
-    logger.setLevel(logging.DEBUG)
-
+        encoding='utf-8',
+        level=logging.INFO)
     logger = logging.getLogger(str(__file__))
+    logger.addHandler(logging.StreamHandler(sys.stdout))
+
     try:
 
         process_controller = ProcessController()
@@ -87,15 +86,16 @@ if __name__ == "__main__":
 
         main_pool = ScheduledThreadPoolExecutor(max_workers=2,
                                                 thread_name_prefix='main-thread')
+
+        # MAINTENACE TASKS
+        main_pool.submit(UpdateRoute53Task().execute).add_done_callback(
+            log_exception)
+
         # SENSOR STATE PRESENTER
         demo1_state_presenter = StatePresenter(demo1_configuration)
         demo1_state_presenter_thread = Thread(
             target=demo1_state_presenter.start, daemon=True)
         demo1_state_presenter_thread.start()
-
-        # MAINTENACE TASKS
-        main_pool.submit(UpdateRoute53Task().execute).add_done_callback(
-            log_exception)
 
         # END OF TASKS CONFIGURATION
         logger.debug('Wait for os signal, start time: %s',
