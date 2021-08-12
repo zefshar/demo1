@@ -12,7 +12,9 @@ class AppBarTitleWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var _textEditingController = TextEditingController(text: this.imagesClassifierService.ClassesCount?.toString());
+    var _textEditingController = TextEditingController(
+        text: this.imagesClassifierService.ClassesCount?.toString());
+
     return Container(
         alignment: Alignment.centerRight,
         child: Column(
@@ -22,9 +24,14 @@ class AppBarTitleWidget extends StatelessWidget {
                 Text(this.title),
                 Spacer(),
                 Padding(
-                  padding: EdgeInsets.fromLTRB(0, 8, 16, 0),
-                  child: IconButton(onPressed: () {}, icon: const Icon(Icons.download_rounded),)
-                ),
+                    padding: EdgeInsets.fromLTRB(0, 8, 16, 0),
+                    child: IconButton(
+                      onPressed: () {
+                        this.imagesClassifierService.FinishedClassification =
+                            true;
+                      },
+                      icon: const Icon(Icons.download_rounded),
+                    )),
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 12, 0, 0),
                   child: Container(
@@ -56,4 +63,3 @@ class AppBarTitleWidget extends StatelessWidget {
         ));
   }
 }
-

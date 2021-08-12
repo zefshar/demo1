@@ -3,9 +3,14 @@ import 'package:demo1/src/component/gallery_toolbar_widget.dart';
 import 'package:demo1/src/component/image_card_widget.dart';
 import 'package:demo1/src/model/classes_count_args.dart';
 import 'package:demo1/src/model/columns_count_args.dart';
+import 'package:demo1/src/model/download_report_args.dart';
 import 'package:demo1/src/service/images_classifier_service.dart';
+import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+//import 'package:pdf/widgets.dart' as pw;
+import 'package:universal_html/html.dart' as html;
 
 void main() {
   runApp(Demo1());
@@ -87,8 +92,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    super.initState();
+
     widget.imagesClassifierService.classesCountChangedEvent.subscribe((args) {
       if (args is ClassesCountArgs) {
         this.setState(() {});
@@ -101,6 +109,49 @@ class _HomePageState extends State<HomePage> {
       }
     });
 
+    widget.imagesClassifierService.downloadReportEvent.subscribe((args) async {
+      if (args is DownloadReportArgs) {
+        final bytes = generateReport(await rootBundle.load('assets/output.xlsx'));
+
+        this.setState(() {
+          final blob = html.Blob([
+            bytes
+          ], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+          final url = html.Url.createObjectUrlFromBlob(blob);
+          print('Blob url is $url');
+          final anchor = html.AnchorElement(href: url)
+            ..setAttribute('download', 'Image-Classifier-Result.xlsx');
+          html.document.body?.append(anchor);
+          anchor.click();
+          anchor.remove();
+          html.Url.revokeObjectUrl(url);
+        });
+        // final pdf = pw.Document();
+        // pdf.addPage(pw.Page(
+        //     pageFormat: PdfPageFormat.a4,
+        //     build: (pw.Context context) {
+        //       return pw.Center(
+        //         child: pw.Text("Hello World"),
+        //       );
+        //     }));
+        // final bytes = pdf.save();
+        // final blob = html.Blob([bytes], 'application/pdf');
+        // final url = html.Url.createObjectUrlFromBlob(blob);
+        // print('Blob url is $url');
+        // final anchor = html.AnchorElement(href: url)
+        //   ..setAttribute('download', 'Image-Classifier-Result.xlsx');
+        // html.document.body?.append(anchor);
+        // anchor.click();
+        // anchor.remove();
+        // html.Url.revokeObjectUrl(url);
+
+      }
+    });
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
     var classes = List<Widget>.generate(
         this.widget.imagesClassifierService.ClassesCount ?? 0,
         (int index) => ImageCardWidget(
@@ -166,5 +217,19 @@ class _HomePageState extends State<HomePage> {
           child: scaffold);
     }
     return scaffold;
+  }
+
+  List<int> generateReport(ByteData data) {
+    var excel = Excel.decodeBytes(
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
+
+    var table = excel.tables.entries.first.value;
+    table.appendRow(['image1.jpg', 'A']);
+    table.appendRow(['image2.jpg', 'B']);
+    table.appendRow(['image3.jpg', '']);
+
+    final bytes = excel.encode();
+
+    return bytes!;
   }
 }

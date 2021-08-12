@@ -46,6 +46,7 @@ class FlutterBundle(object):
             '.otf': 'font/otf',
             '.woff': 'font/woff',
             '.woff2': 'font/woff2',
+            '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         }
         self.logger.info('FlutterBundle finish initialization')
 
