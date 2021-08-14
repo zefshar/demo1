@@ -2,16 +2,19 @@ import 'package:demo1/src/service/images_classifier_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'action_button.dart';
+import 'choose_images_source_button.dart';
+
 class GalleryToolbarWidget extends StatelessWidget {
   final ImagesClassifierService imagesClassifierService;
 
-  GalleryToolbarWidget(
-      {Key? key, required this.imagesClassifierService})
+  GalleryToolbarWidget({Key? key, required this.imagesClassifierService})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    var _textEditingController = TextEditingController(text: this.imagesClassifierService.ColumnsCount?.toString());
+    var _textEditingController = TextEditingController(
+        text: this.imagesClassifierService.ColumnsCount?.toString());
     return Container(
         alignment: Alignment.centerRight,
         child: Column(
@@ -20,9 +23,14 @@ class GalleryToolbarWidget extends StatelessWidget {
               children: [
                 Spacer(),
                 Padding(
-                  padding: EdgeInsets.fromLTRB(0, 4, 16, 0),
-                  child: IconButton(onPressed: () {}, icon: const Icon(Icons.upload_rounded))
-                ),
+                    padding: EdgeInsets.fromLTRB(0, 4, 16, 0),
+                    child: ChooseImagesSourceButton(distance: 112.0, children: [
+                      Text("Insert path to shared folder"),
+                      // ActionButton(
+                      //   onPressed: () => _showAction(context, 1),
+                      //   icon: const Icon(Icons.insert_photo),
+                      // ),
+                    ])),
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 0, 16, 0),
                   child: Container(
@@ -53,5 +61,8 @@ class GalleryToolbarWidget extends StatelessWidget {
           ],
         ));
   }
-}
 
+  _showAction(BuildContext context, int i) {
+    print('Pressed $i');
+  }
+}
