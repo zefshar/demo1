@@ -12,7 +12,7 @@ import 'package:flutter/services.dart';
 //import 'package:pdf/widgets.dart' as pw;
 import 'package:universal_html/html.dart' as html;
 
-void main() {
+void main() async {
   runApp(Demo1());
 }
 
@@ -111,43 +111,29 @@ class _HomePageState extends State<HomePage> {
 
     widget.imagesClassifierService.downloadReportEvent.subscribe((args) async {
       if (args is DownloadReportArgs) {
-        final bytes = generateReport(await rootBundle.load('assets/output.xlsx'));
-
-        this.setState(() {
+        try {
+          final bytes = this.generateReport(await rootBundle.load('assets/output.xlsx'));
           final blob = html.Blob([
             bytes
           ], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
           final url = html.Url.createObjectUrlFromBlob(blob);
-          print('Blob url is $url');
           final anchor = html.AnchorElement(href: url)
             ..setAttribute('download', 'Image-Classifier-Result.xlsx');
           html.document.body?.append(anchor);
-          anchor.click();
-          anchor.remove();
-          html.Url.revokeObjectUrl(url);
-        });
-        // final pdf = pw.Document();
-        // pdf.addPage(pw.Page(
-        //     pageFormat: PdfPageFormat.a4,
-        //     build: (pw.Context context) {
-        //       return pw.Center(
-        //         child: pw.Text("Hello World"),
-        //       );
-        //     }));
-        // final bytes = pdf.save();
-        // final blob = html.Blob([bytes], 'application/pdf');
-        // final url = html.Url.createObjectUrlFromBlob(blob);
-        // print('Blob url is $url');
-        // final anchor = html.AnchorElement(href: url)
-        //   ..setAttribute('download', 'Image-Classifier-Result.xlsx');
-        // html.document.body?.append(anchor);
-        // anchor.click();
-        // anchor.remove();
-        // html.Url.revokeObjectUrl(url);
 
+          WidgetsBinding.instance?.addPostFrameCallback((_) {
+            setState(() {
+              anchor.click();
+              anchor.remove();
+              html.Url.revokeObjectUrl(url);
+            });
+          });
+        } catch (e) {
+          print('(Fail) widget.imagesClassifierService.downloadReportEvent');
+          print(e);
+        }
       }
     });
-
   }
 
   @override

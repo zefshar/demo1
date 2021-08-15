@@ -28,9 +28,6 @@ dependencies:
   # Universal html
   universal_html: ^2.0.8
 
-  # PDF Maker library
-  pdf: ^3.4.2
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

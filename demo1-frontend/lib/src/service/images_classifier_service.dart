@@ -1,6 +1,7 @@
 import 'package:demo1/src/model/classes_count_args.dart';
 import 'package:demo1/src/model/columns_count_args.dart';
 import 'package:demo1/src/model/download_report_args.dart';
+import 'package:demo1/src/model/shared_folder_args.dart';
 import 'package:event/event.dart';
 
 final DEFAULT_CLASSES_COUNT = 2;
@@ -14,11 +15,15 @@ class ImagesClassifierService {
 
   bool? _finishedClassification = false;
 
+  String? _sharedFolder = '';
+
   final classesCountChangedEvent = Event<ClassesCountArgs>();
 
   final columnsCountChangedEvent = Event<ColumnsCountArgs>();
 
   final downloadReportEvent = Event<DownloadReportArgs>();
+
+  final sharedFolderChangedEvent = Event<SharedFolderArgs>();
 
   set ClassesCount(int? value) {
     this._classesCount = value;
@@ -45,5 +50,14 @@ class ImagesClassifierService {
 
   bool? get FinishedClassification {
     return this._finishedClassification;
+  }
+
+  set SharedFolder(String? value) {
+    this._sharedFolder = value;
+    this.sharedFolderChangedEvent.broadcast(SharedFolderArgs(value));
+  }
+
+  String? get SharedFolder {
+    return this._sharedFolder;
   }
 }

@@ -2,6 +2,8 @@ import 'package:demo1/src/service/images_classifier_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'app_bar_title_widget/save_results_button.dart';
+
 class AppBarTitleWidget extends StatelessWidget {
   final String title;
   final ImagesClassifierService imagesClassifierService;
@@ -24,13 +26,12 @@ class AppBarTitleWidget extends StatelessWidget {
                 Text(this.title),
                 Spacer(),
                 Padding(
-                    padding: EdgeInsets.fromLTRB(0, 8, 16, 0),
-                    child: IconButton(
+                    padding: EdgeInsets.fromLTRB(0, 6, 16, 0),
+                    child: SaveResultsButton(
                       onPressed: () {
                         this.imagesClassifierService.FinishedClassification =
                             true;
                       },
-                      icon: const Icon(Icons.download_rounded),
                     )),
                 Padding(
                   padding: EdgeInsets.fromLTRB(0, 12, 0, 0),
