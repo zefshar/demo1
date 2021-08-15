@@ -27,6 +27,8 @@ dependencies:
 
   # Universal html
   universal_html: ^2.0.8
+  # Utility stuff
+  tuple: ^2.0.0
 
 dev_dependencies:
   flutter_test:

@@ -1,14 +1,17 @@
 import 'package:demo1/src/component/app_bar_title_widget.dart';
 import 'package:demo1/src/component/gallery_toolbar_widget.dart';
 import 'package:demo1/src/component/image_card_widget.dart';
+import 'package:demo1/src/component/image_class_card_widget.dart';
 import 'package:demo1/src/model/classes_count_args.dart';
 import 'package:demo1/src/model/columns_count_args.dart';
 import 'package:demo1/src/model/download_report_args.dart';
+import 'package:demo1/src/model/result_changed_args%20copy.dart';
 import 'package:demo1/src/service/images_classifier_service.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tuple/tuple.dart';
 //import 'package:pdf/widgets.dart' as pw;
 import 'package:universal_html/html.dart' as html;
 
@@ -92,27 +95,29 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  late List<ImageCardWidget> unclassifiedImages;
 
   @override
   void initState() {
     super.initState();
 
-    widget.imagesClassifierService.classesCountChangedEvent.subscribe((args) {
+    this.widget.imagesClassifierService.classesCountChangedEvent.subscribe((args) {
       if (args is ClassesCountArgs) {
         this.setState(() {});
       }
     });
 
-    widget.imagesClassifierService.columnsCountChangedEvent.subscribe((args) {
+    this.widget.imagesClassifierService.columnsCountChangedEvent.subscribe((args) {
       if (args is ColumnsCountArgs && ((args).value ?? 0) > 0) {
         this.setState(() {});
       }
     });
 
-    widget.imagesClassifierService.downloadReportEvent.subscribe((args) async {
+    this.widget.imagesClassifierService.downloadReportEvent.subscribe((args) async {
       if (args is DownloadReportArgs) {
         try {
-          final bytes = this.generateReport(await rootBundle.load('assets/output.xlsx'));
+          final bytes =
+              this.generateReport(await rootBundle.load('assets/output.xlsx'));
           final blob = html.Blob([
             bytes
           ], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -134,17 +139,36 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
+
+    this.widget.imagesClassifierService.selectImageEvent.subscribe((args) {
+      if (args is SelectImageArgs && ((args).value != null)) {
+        this.setState(() {
+          final unselectingImages = Set.of(this.widget.imagesClassifierService.AllSelectedImages);
+          this.unclassifiedImages.where((widget) => unselectingImages.contains(Tuple2(widget.imageReference, widget.key))).forEach((widget) {
+            widget.refresh();
+           });
+        });
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     var classes = List<Widget>.generate(
         this.widget.imagesClassifierService.ClassesCount ?? 0,
-        (int index) => ImageCardWidget(
+        (int index) => ImageClassCardWidget(
               index: index,
             ));
 
     final size = MediaQuery.of(context).size;
+
+    this.unclassifiedImages = List.generate(100, (index) {
+      return ImageCardWidget(
+        imageReference:
+            'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg',
+        imagesClassifierService: this.widget.imagesClassifierService,
+      );
+    });
 
     var scaffold = Scaffold(
       resizeToAvoidBottomInset: true,
@@ -181,15 +205,7 @@ class _HomePageState extends State<HomePage> {
           child: GridView.count(
             crossAxisCount: widget.imagesClassifierService.ColumnsCount ?? 0,
             // Generate 100 widgets that display their index in the List.
-            children: List.generate(100, (index) {
-              return Center(
-                child: Image(
-                  fit: BoxFit.fitWidth,
-                  image: NetworkImage(
-                      'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg'),
-                ),
-              );
-            }),
+            children: this.unclassifiedImages,
           ),
         ),
       ])),
