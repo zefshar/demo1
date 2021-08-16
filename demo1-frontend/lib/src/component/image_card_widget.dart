@@ -1,3 +1,4 @@
+import 'package:demo1/src/model/select_image_args.dart';
 import 'package:demo1/src/service/images_classifier_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -17,17 +18,26 @@ class ImageCardWidget extends StatefulWidget {
   @override
   _ImageCardWidgetState createState() => _ImageCardWidgetState();
 
-  void refresh() {
+  Tuple2<String?, Key?> value() {
+    return Tuple2(this.imageReference, this.key);
   }
 }
 
 class _ImageCardWidgetState extends State<ImageCardWidget> {
-  bool _selected = false;
+  late bool _selected;
 
   @override
   void initState() {
     super.initState();
-    
+    this._selected = this.widget.imagesClassifierService.SelectedImage ==
+        this.widget.value();
+    handleSelected();
+  }
+
+  @override
+  void dispose() {
+    disableListening();
+    super.dispose();
   }
 
   @override
@@ -36,9 +46,7 @@ class _ImageCardWidgetState extends State<ImageCardWidget> {
         onTap: () {
           setState(() {
             this._selected = !this._selected;
-            if (this._selected) {
-              this.widget.imagesClassifierService.SelectedImage = Tuple2(this.widget.imageReference, this.widget.key);
-            }
+            handleSelected();
           });
         },
         child: Card(
@@ -64,9 +72,45 @@ class _ImageCardWidgetState extends State<ImageCardWidget> {
                         size: 42.0,
                       ),
                     ),
+                  ),
+                  Positioned(
+                    left: 13,
+                    top: 13,
+                    child: Text(this.widget.key?.toString() ?? ''),
                   )
                 ],
               ),
             )));
+  }
+
+  void handleSelected() {
+    if (this._selected) {
+      this.widget.imagesClassifierService.SelectedImage =
+          Tuple2(this.widget.imageReference, this.widget.key);
+      this
+          .widget
+          .imagesClassifierService
+          .selectImageEvent
+          .subscribe(this.selectImageHandler);
+    } else {
+      disableListening();
+    }
+  }
+
+  void selectImageHandler(args) {
+    if (args is SelectImageArgs && ((args).value != widget.value())) {
+      disableListening();
+      setState(() {
+        this._selected = false;
+      });
+    }
+  }
+
+  void disableListening() {
+    this
+        .widget
+        .imagesClassifierService
+        .selectImageEvent
+        .unsubscribe(this.selectImageHandler);
   }
 }

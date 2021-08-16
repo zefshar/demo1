@@ -3,7 +3,7 @@ import 'dart:collection';
 import 'package:demo1/src/model/classes_count_args.dart';
 import 'package:demo1/src/model/columns_count_args.dart';
 import 'package:demo1/src/model/download_report_args.dart';
-import 'package:demo1/src/model/result_changed_args%20copy.dart';
+import 'package:demo1/src/model/select_image_args.dart';
 import 'package:demo1/src/model/result_changed_args.dart';
 import 'package:demo1/src/model/shared_folder_args.dart';
 import 'package:event/event.dart';
@@ -24,7 +24,6 @@ class ImagesClassifierService {
   String? _sharedFolder = '';
 
   Tuple2<String?, Key?>? _selectedImage;
-  List<Tuple2<String?, Key?>> _allSelectedImages = List.empty(growable: true);
 
   Map<String, Map<String, int>> _result = LinkedHashMap();
 
@@ -111,18 +110,11 @@ class ImagesClassifierService {
         .broadcast(ResultChangedArgs(className, imageReference, remove: true));
   }
 
-  set SelectedImage(Tuple2<String?, Key?> value) {
+  set SelectedImage(Tuple2<String?, Key?>? value) {
     this._selectedImage = value;
-    this._allSelectedImages.add(value);
     this.selectImageEvent.broadcast(SelectImageArgs(value));
   }
 
-  get AllSelectedImages => List.of(this._allSelectedImages);
+  Tuple2<String?, Key?>? get SelectedImage => this._selectedImage;
 
-  void removeFromAllSelectedImages(List<Tuple2<String?, Key?>> values) {
-    // TODO: optimize it
-    values.forEach((element) {
-      this._allSelectedImages.remove(element);
-    });
-  }
 }

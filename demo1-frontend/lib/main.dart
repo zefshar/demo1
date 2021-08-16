@@ -5,7 +5,7 @@ import 'package:demo1/src/component/image_class_card_widget.dart';
 import 'package:demo1/src/model/classes_count_args.dart';
 import 'package:demo1/src/model/columns_count_args.dart';
 import 'package:demo1/src/model/download_report_args.dart';
-import 'package:demo1/src/model/result_changed_args%20copy.dart';
+import 'package:demo1/src/model/select_image_args.dart';
 import 'package:demo1/src/service/images_classifier_service.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
@@ -142,12 +142,7 @@ class _HomePageState extends State<HomePage> {
 
     this.widget.imagesClassifierService.selectImageEvent.subscribe((args) {
       if (args is SelectImageArgs && ((args).value != null)) {
-        this.setState(() {
-          final unselectingImages = Set.of(this.widget.imagesClassifierService.AllSelectedImages);
-          this.unclassifiedImages.where((widget) => unselectingImages.contains(Tuple2(widget.imageReference, widget.key))).forEach((widget) {
-            widget.refresh();
-           });
-        });
+        print('Image selected');
       }
     });
   }
@@ -167,6 +162,7 @@ class _HomePageState extends State<HomePage> {
         imageReference:
             'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg',
         imagesClassifierService: this.widget.imagesClassifierService,
+        key: UniqueKey(),
       );
     });
 
