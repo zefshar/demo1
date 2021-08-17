@@ -28,7 +28,7 @@ class ImagesClassifierService {
 
   int? _selectedClass;
 
-  Map<String, Map<String, int>> _result = LinkedHashMap();
+  Map<int, Map<String, int>> _result = LinkedHashMap();
 
   final classesCountChangedEvent = Event<ClassesCountArgs>();
 
@@ -80,39 +80,39 @@ class ImagesClassifierService {
     return this._sharedFolder;
   }
 
-  Map<String, List<String>>? get Result {
+  Map<int, List<String>>? get Result {
     return this._result.map((key, value) =>
         MapEntry(key, value.entries.map((entry) => entry.key).toList()));
   }
 
-  void assignImageToClass(String imageReference, String className) {
-    if (!this._result.containsKey(className)) {
-      this._result.putIfAbsent(className, () => LinkedHashMap());
+  void assignImageToClass(String imageReference, int classNumber) {
+    if (!this._result.containsKey(classNumber)) {
+      this._result.putIfAbsent(classNumber, () => LinkedHashMap());
     }
-    this._result[className]!.putIfAbsent(imageReference, () => 0);
-    this._result[className]![imageReference] =
-        this._result[className]![imageReference]! + 1;
+    this._result[classNumber]!.putIfAbsent(imageReference, () => 0);
+    this._result[classNumber]![imageReference] =
+        this._result[classNumber]![imageReference]! + 1;
     this
         .resultChangedEvent
-        .broadcast(ResultChangedArgs(className, imageReference));
+        .broadcast(ResultChangedArgs(classNumber, imageReference));
   }
 
-  void dropImageFromClass(String imageReference, String className) {
-    if (!this._result.containsKey(className)) {
+  void dropImageFromClass(String imageReference, int classNumber) {
+    if (!this._result.containsKey(classNumber)) {
       return;
     }
-    if (!this._result[className]!.containsKey(imageReference)) {
+    if (!this._result[classNumber]!.containsKey(imageReference)) {
       return;
     }
-    if (this._result[className]![imageReference]! <= 1) {
-      this._result[className]!.remove(imageReference);
+    if (this._result[classNumber]![imageReference]! <= 1) {
+      this._result[classNumber]!.remove(imageReference);
     } else {
-      this._result[className]![imageReference] =
-          this._result[className]![imageReference]! - 1;
+      this._result[classNumber]![imageReference] =
+          this._result[classNumber]![imageReference]! - 1;
     }
     this
         .resultChangedEvent
-        .broadcast(ResultChangedArgs(className, imageReference, remove: true));
+        .broadcast(ResultChangedArgs(classNumber, imageReference, remove: true));
   }
 
   set SelectedImage(Tuple2<String?, Key?>? value) {

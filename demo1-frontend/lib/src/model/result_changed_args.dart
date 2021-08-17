@@ -3,9 +3,9 @@ import 'package:event/event.dart';
 
 ///
 class ResultChangedArgs extends EventArgs {
-  String? className;
+  int? classNumber;
   String? imageReference;
   bool? remove;
 
-  ResultChangedArgs(this.className, this.imageReference, {this.remove = false});
+  ResultChangedArgs(this.classNumber, this.imageReference, {this.remove = false});
 }
