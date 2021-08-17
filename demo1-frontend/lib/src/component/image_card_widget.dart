@@ -73,11 +73,11 @@ class _ImageCardWidgetState extends State<ImageCardWidget> {
                       ),
                     ),
                   ),
-                  Positioned(
-                    left: 13,
-                    top: 13,
-                    child: Text(this.widget.key?.toString() ?? ''),
-                  )
+                  // Positioned(
+                  //   left: 13,
+                  //   top: 13,
+                  //   child: Text(this.widget.key?.toString() ?? ''),
+                  // )
                 ],
               ),
             )));

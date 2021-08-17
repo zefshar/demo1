@@ -3,8 +3,9 @@ import 'dart:collection';
 import 'package:demo1/src/model/classes_count_args.dart';
 import 'package:demo1/src/model/columns_count_args.dart';
 import 'package:demo1/src/model/download_report_args.dart';
-import 'package:demo1/src/model/select_image_args.dart';
 import 'package:demo1/src/model/result_changed_args.dart';
+import 'package:demo1/src/model/select_class_args.dart';
+import 'package:demo1/src/model/select_image_args.dart';
 import 'package:demo1/src/model/shared_folder_args.dart';
 import 'package:event/event.dart';
 import 'package:flutter/src/foundation/key.dart';
@@ -25,6 +26,8 @@ class ImagesClassifierService {
 
   Tuple2<String?, Key?>? _selectedImage;
 
+  int? _selectedClass;
+
   Map<String, Map<String, int>> _result = LinkedHashMap();
 
   final classesCountChangedEvent = Event<ClassesCountArgs>();
@@ -38,6 +41,8 @@ class ImagesClassifierService {
   final resultChangedEvent = Event<ResultChangedArgs>();
 
   final selectImageEvent = Event<SelectImageArgs>();
+
+  final selectClassEvent = Event<SelectClassArgs>();
 
   set ClassesCount(int? value) {
     this._classesCount = value;
@@ -117,4 +122,10 @@ class ImagesClassifierService {
 
   Tuple2<String?, Key?>? get SelectedImage => this._selectedImage;
 
+  set SelectedClass(int? value) {
+    this._selectedClass = value;
+    this.selectClassEvent.broadcast(SelectClassArgs(value));
+  }
+
+  int? get SelectedClass => this._selectedClass;
 }

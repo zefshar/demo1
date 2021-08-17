@@ -101,19 +101,31 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    this.widget.imagesClassifierService.classesCountChangedEvent.subscribe((args) {
+    this
+        .widget
+        .imagesClassifierService
+        .classesCountChangedEvent
+        .subscribe((args) {
       if (args is ClassesCountArgs) {
         this.setState(() {});
       }
     });
 
-    this.widget.imagesClassifierService.columnsCountChangedEvent.subscribe((args) {
+    this
+        .widget
+        .imagesClassifierService
+        .columnsCountChangedEvent
+        .subscribe((args) {
       if (args is ColumnsCountArgs && ((args).value ?? 0) > 0) {
         this.setState(() {});
       }
     });
 
-    this.widget.imagesClassifierService.downloadReportEvent.subscribe((args) async {
+    this
+        .widget
+        .imagesClassifierService
+        .downloadReportEvent
+        .subscribe((args) async {
       if (args is DownloadReportArgs) {
         try {
           final bytes =
@@ -152,8 +164,8 @@ class _HomePageState extends State<HomePage> {
     var classes = List<Widget>.generate(
         this.widget.imagesClassifierService.ClassesCount ?? 0,
         (int index) => ImageClassCardWidget(
-              index: index,
-            ));
+            index: index,
+            imagesClassifierService: this.widget.imagesClassifierService));
 
     final size = MediaQuery.of(context).size;
 
