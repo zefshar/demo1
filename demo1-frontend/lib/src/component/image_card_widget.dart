@@ -110,7 +110,7 @@ class _ImageCardWidgetState extends State<ImageCardWidget> {
       this.setState(() {
         this._selected = this.widget.imagesClassifierService.SelectedImage ==
             this.widget.value();
-        this._isBlank = true;
+        this._isBlank = !args.remove!;
       });
     }
   }

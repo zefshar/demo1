@@ -61,6 +61,12 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
             handleSelected();
           });
         },
+        onDoubleTap: () {
+          this
+              .widget
+              .imagesClassifierService
+              .dropLastImageFromClass(this.widget.value());
+        },
         child: Card(
             child: Center(
                 child: Stack(children: [

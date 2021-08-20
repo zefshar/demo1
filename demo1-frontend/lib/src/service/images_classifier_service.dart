@@ -149,7 +149,7 @@ class ImagesClassifierService {
   }
 
   int imagesCount(int index) {
-    if (!this._classifierResult.containsKey(index)) {
+    if (!this._classifierResult.containsKey(index) || this._classifierResult[index]!.isEmpty) {
       return 0;
     }
     return this._classifierResult[index]!.values.reduce((x, y) => x + y);
@@ -167,5 +167,12 @@ class ImagesClassifierService {
         ._classifierResult
         .entries
         .any((entry) => entry.value.keys.any((tuple) => tuple.item2 == key)));
+  }
+
+  void dropLastImageFromClass(int value) {
+    if (this._classifierResult.containsKey(value) && this._classifierResult[value]!.isNotEmpty) {
+      final lastImage = this._classifierResult[value]?.keys.last;
+      this.dropImageFromClass(lastImage!, value);
+    }
   }
 }

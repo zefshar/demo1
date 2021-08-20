@@ -164,17 +164,47 @@ class _HomePageState extends State<HomePage> {
       if (args is ResultChangedArgs && columnsCount > 0) {
         final index = (args.imageReference!.item2 as ValueKey).value as int;
         final int lowerBound = (index ~/ columnsCount) * columnsCount;
-        final removedKeys = Set<Key>.from(List<Key>.generate(
+        final rowKeys = Set<Key>.from(List<Key>.generate(
             columnsCount, (index) => ValueKey(lowerBound + index)));
-        if (this
-            .widget
-            .imagesClassifierService
-            .allKeysHaveClassified(removedKeys)) {
+        if (!args.remove! &&
+            this
+                .widget
+                .imagesClassifierService
+                .allKeysHaveClassified(rowKeys)) {
           this.setState(() {
             this
                 .unclassifiedImages
-                .removeWhere((element) => removedKeys.contains(element.item2));
+                .removeWhere((element) => rowKeys.contains(element.item2));
           });
+        }
+        if (args.remove!) {
+          final upperIndex = this.unclassifiedImages.indexWhere((element) =>
+              (element.item2 as ValueKey<int>).value >= index);
+          // If indexes are equals replace image url
+          if (this.unclassifiedImages[upperIndex].item2 ==
+              args.imageReference!.item2) {
+            this.setState(() {
+              this.unclassifiedImages[upperIndex] = args.imageReference!;
+            });
+          } else {
+            // Else insert row
+            final rowOfImageReferences = List<Tuple2<String?, Key?>>.generate(
+                columnsCount,
+                (index) => Tuple2(
+                    args.imageReference!.item1, ValueKey(lowerBound + index)));
+            this.setState(() {
+              if (upperIndex > 0) {
+                this
+                    .unclassifiedImages
+                    .insertAll(upperIndex, rowOfImageReferences);
+              } else if (upperIndex == 0) {
+                this.unclassifiedImages.insertAll(0, rowOfImageReferences);
+              } else {
+                // Not found case
+                this.unclassifiedImages.addAll(rowOfImageReferences);
+              }
+            });
+          }
         }
       }
     });
