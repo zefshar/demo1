@@ -5,7 +5,7 @@ import 'package:demo1/src/component/image_class_card_widget.dart';
 import 'package:demo1/src/model/classes_count_args.dart';
 import 'package:demo1/src/model/columns_count_args.dart';
 import 'package:demo1/src/model/download_report_args.dart';
-import 'package:demo1/src/model/select_image_args.dart';
+import 'package:demo1/src/model/result_changed_args.dart';
 import 'package:demo1/src/service/images_classifier_service.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
@@ -95,7 +95,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  late List<ImageCardWidget> unclassifiedImages;
+  late List<Tuple2<String?, Key?>> unclassifiedImages;
 
   @override
   void initState() {
@@ -152,8 +152,30 @@ class _HomePageState extends State<HomePage> {
       }
     });
 
-    this.widget.imagesClassifierService.selectImageEvent.subscribe((args) {
-      if (args is SelectImageArgs && ((args).value != null)) {
+    this.unclassifiedImages = List.generate(
+        100,
+        (index) => Tuple2(
+            'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg',
+            ValueKey(index)));
+
+    this.widget.imagesClassifierService.resultChangedEvent.subscribe((args) {
+      // Remove blank row
+      final columnsCount = this.widget.imagesClassifierService.ColumnsCount!;
+      if (args is ResultChangedArgs && columnsCount > 0) {
+        final index = (args.imageReference!.item2 as ValueKey).value as int;
+        final int lowerBound = (index ~/ columnsCount) * columnsCount;
+        final removedKeys = Set<Key>.from(List<Key>.generate(
+            columnsCount, (index) => ValueKey(lowerBound + index)));
+        if (this
+            .widget
+            .imagesClassifierService
+            .allKeysHaveClassified(removedKeys)) {
+          this.setState(() {
+            this
+                .unclassifiedImages
+                .removeWhere((element) => removedKeys.contains(element.item2));
+          });
+        }
       }
     });
   }
@@ -168,14 +190,14 @@ class _HomePageState extends State<HomePage> {
 
     final size = MediaQuery.of(context).size;
 
-    this.unclassifiedImages = List.generate(100, (index) {
-      return ImageCardWidget(
-        imageReference:
-            'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg',
-        imagesClassifierService: this.widget.imagesClassifierService,
-        key: UniqueKey(),
-      );
-    });
+    final imagesForClassification = this
+        .unclassifiedImages
+        .map((e) => ImageCardWidget(
+              imageReference: e.item1,
+              imagesClassifierService: this.widget.imagesClassifierService,
+              key: e.item2,
+            ))
+        .toList();
 
     var scaffold = Scaffold(
       resizeToAvoidBottomInset: true,
@@ -208,13 +230,12 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         Expanded(
-          flex: 3,
-          child: GridView.count(
-            crossAxisCount: widget.imagesClassifierService.ColumnsCount ?? 0,
-            // Generate 100 widgets that display their index in the List.
-            children: this.unclassifiedImages,
-          ),
-        ),
+            flex: 3,
+            child: GridView.count(
+              crossAxisCount: widget.imagesClassifierService.ColumnsCount ?? 0,
+              // Generate 100 widgets that display their index in the List.
+              children: imagesForClassification,
+            )),
       ])),
     );
 

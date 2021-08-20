@@ -28,7 +28,7 @@ class ImagesClassifierService {
 
   int? _selectedClass;
 
-  Map<int, Map<String, int>> _result = LinkedHashMap();
+  Map<int, Map<Tuple2<String?, Key?>, int>> _classifierResult = LinkedHashMap();
 
   final classesCountChangedEvent = Event<ClassesCountArgs>();
 
@@ -81,44 +81,45 @@ class ImagesClassifierService {
   }
 
   Map<int, List<String>>? get Result {
-    return this._result.map((key, value) =>
-        MapEntry(key, value.entries.map((entry) => entry.key).toList()));
+    return this._classifierResult.map((key, value) =>
+        MapEntry(key, value.entries.map((entry) => entry.key.item1!).toList()));
   }
 
-  void assignImageToClass(String imageReference, int classNumber) {
-    if (!this._result.containsKey(classNumber)) {
-      this._result.putIfAbsent(classNumber, () => LinkedHashMap());
+  void assignImageToClass(
+      Tuple2<String?, Key?> imageReference, int classNumber) {
+    if (!this._classifierResult.containsKey(classNumber)) {
+      this._classifierResult.putIfAbsent(classNumber, () => LinkedHashMap());
     }
-    this._result[classNumber]!.putIfAbsent(imageReference, () => 0);
-    this._result[classNumber]![imageReference] =
-        this._result[classNumber]![imageReference]! + 1;
+    this._classifierResult[classNumber]!.putIfAbsent(imageReference, () => 0);
+    this._classifierResult[classNumber]![imageReference] =
+        this._classifierResult[classNumber]![imageReference]! + 1;
     this
         .resultChangedEvent
         .broadcast(ResultChangedArgs(classNumber, imageReference));
   }
 
-  void dropImageFromClass(String imageReference, int classNumber) {
-    if (!this._result.containsKey(classNumber)) {
+  void dropImageFromClass(
+      Tuple2<String?, Key?> imageReference, int classNumber) {
+    if (!this._classifierResult.containsKey(classNumber)) {
       return;
     }
-    if (!this._result[classNumber]!.containsKey(imageReference)) {
+    if (!this._classifierResult[classNumber]!.containsKey(imageReference)) {
       return;
     }
-    if (this._result[classNumber]![imageReference]! <= 1) {
-      this._result[classNumber]!.remove(imageReference);
+    if (this._classifierResult[classNumber]![imageReference]! <= 1) {
+      this._classifierResult[classNumber]!.remove(imageReference);
     } else {
-      this._result[classNumber]![imageReference] =
-          this._result[classNumber]![imageReference]! - 1;
+      this._classifierResult[classNumber]![imageReference] =
+          this._classifierResult[classNumber]![imageReference]! - 1;
     }
-    this
-        .resultChangedEvent
-        .broadcast(ResultChangedArgs(classNumber, imageReference, remove: true));
+    this.resultChangedEvent.broadcast(
+        ResultChangedArgs(classNumber, imageReference, remove: true));
   }
 
   Tuple2<String?, Key?>? get SelectedImage => this._selectedImage;
 
   set SelectedImage(Tuple2<String?, Key?>? value) {
-    final event = Tuple2(value?.item1, this._selectedClass);
+    final event = Tuple2(value, this._selectedClass);
     if (event.item1 != null && event.item2 != null) {
       this._selectedImage = null;
       this._selectedClass = null;
@@ -134,7 +135,7 @@ class ImagesClassifierService {
   int? get SelectedClass => this._selectedClass;
 
   set SelectedClass(int? value) {
-    final event = Tuple2(this._selectedImage?.item1, value);
+    final event = Tuple2(this._selectedImage, value);
     if (event.item1 != null && event.item2 != null) {
       this._selectedImage = null;
       this._selectedClass = null;
@@ -148,9 +149,23 @@ class ImagesClassifierService {
   }
 
   int imagesCount(int index) {
-    if (!this._result.containsKey(index)) {
+    if (!this._classifierResult.containsKey(index)) {
       return 0;
     }
-    return this._result[index]!.values.reduce((x, y) => x + y);
+    return this._classifierResult[index]!.values.reduce((x, y) => x + y);
+  }
+
+  bool isClassified(Tuple2<String?, Key?> value) {
+    return this
+        ._classifierResult
+        .entries
+        .any((element) => element.value.containsKey(value));
+  }
+
+  bool allKeysHaveClassified(Set<Key> keys) {
+    return keys.every((key) => this
+        ._classifierResult
+        .entries
+        .any((entry) => entry.value.keys.any((tuple) => tuple.item2 == key)));
   }
 }

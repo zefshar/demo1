@@ -26,12 +26,15 @@ class ImageCardWidget extends StatefulWidget {
 
 class _ImageCardWidgetState extends State<ImageCardWidget> {
   late bool _selected;
+  late bool _isBlank;
 
   @override
   void initState() {
     super.initState();
     this._selected = this.widget.imagesClassifierService.SelectedImage ==
         this.widget.value();
+    this._isBlank =
+        this.widget.imagesClassifierService.isClassified(this.widget.value());
     this
         .widget
         .imagesClassifierService
@@ -54,54 +57,60 @@ class _ImageCardWidgetState extends State<ImageCardWidget> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-        onTap: () {
+      onTap: () {
+        if (!this._isBlank) {
           setState(() {
             this._selected = !this._selected;
             this.widget.imagesClassifierService.SelectedImage = this._selected
-                ? Tuple2(this.widget.imageReference, this.widget.key)
+                ? this.widget.value()
                 : null;
             handleSelected();
           });
-        },
-        child: Card(
-            elevation: this._selected ? 13.0 : 0.0,
-            shadowColor: Theme.of(context).backgroundColor,
-            shape: const ContinuousRectangleBorder(
-                borderRadius: BorderRadius.zero),
-            child: Center(
-              child: Stack(
-                children: [
-                  Image(
-                    fit: BoxFit.fitWidth,
-                    image: NetworkImage(this.widget.imageReference!),
-                  ),
-                  Positioned(
-                    right: 13,
-                    top: 13,
-                    child: Opacity(
-                      opacity: this._selected ? 1.0 : 0.0,
-                      child: Icon(
-                        Icons.check_circle,
-                        color: Colors.black.withOpacity(0.5),
-                        size: 42.0,
+        }
+      },
+      child: Card(
+          elevation: this._selected ? 13.0 : 0.0,
+          shadowColor: Theme.of(context).backgroundColor,
+          shape:
+              const ContinuousRectangleBorder(borderRadius: BorderRadius.zero),
+          child: Opacity(
+              opacity: this._isBlank ? 0.0 : 1.0,
+              child: Center(
+                child: Stack(
+                  children: [
+                    Image(
+                      fit: BoxFit.fitWidth,
+                      image: NetworkImage(this.widget.imageReference!),
+                    ),
+                    Positioned(
+                      right: 13,
+                      top: 13,
+                      child: Opacity(
+                        opacity: this._selected ? 1.0 : 0.0,
+                        child: Icon(
+                          Icons.check_circle,
+                          color: Colors.black.withOpacity(0.5),
+                          size: 42.0,
+                        ),
                       ),
                     ),
-                  ),
-                  // Positioned(
-                  //   left: 13,
-                  //   top: 13,
-                  //   child: Text(this.widget.key?.toString() ?? ''),
-                  // )
-                ],
-              ),
-            )));
+                    Positioned(
+                      left: 13,
+                      top: 13,
+                      child: Text(this.widget.key?.toString() ?? ''),
+                    )
+                  ],
+                ),
+              ))),
+    );
   }
 
   void resultIsChanged(ResultChangedArgs? args) {
-    if (args != null && args.imageReference == this.widget.imageReference) {
+    if (args != null && args.imageReference == this.widget.value()) {
       this.setState(() {
         this._selected = this.widget.imagesClassifierService.SelectedImage ==
             this.widget.value();
+        this._isBlank = true;
       });
     }
   }
