@@ -1,3 +1,4 @@
+import 'package:demo1/src/model/result_changed_args.dart';
 import 'package:demo1/src/model/select_class_args.dart';
 import 'package:demo1/src/service/images_classifier_service.dart';
 import 'package:demo1/src/utils.dart';
@@ -21,7 +22,7 @@ class ImageClassCardWidget extends StatefulWidget {
 }
 
 class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
-  final int count = 0;
+  int count = 0;
   late bool _selected;
 
   @override
@@ -29,12 +30,22 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
     super.initState();
     this._selected = this.widget.imagesClassifierService.SelectedImage ==
         this.widget.value();
+    this
+        .widget
+        .imagesClassifierService
+        .resultChangedEvent
+        .subscribe(this.resultIsChanged);
     handleSelected();
   }
 
   @override
   void dispose() {
     disableListening();
+    this
+        .widget
+        .imagesClassifierService
+        .resultChangedEvent
+        .unsubscribe(this.resultIsChanged);
     super.dispose();
   }
 
@@ -45,6 +56,8 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
         onTap: () {
           setState(() {
             this._selected = !this._selected;
+            this.widget.imagesClassifierService.SelectedClass =
+                this._selected ? this.widget.index : null;
             handleSelected();
           });
         },
@@ -127,9 +140,21 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
     );
   }
 
+  void resultIsChanged(ResultChangedArgs? args) {
+    if (args != null && args.classNumber == this.widget.index) {
+      this.setState(() {
+        this.count =
+            this.widget.imagesClassifierService.imagesCount(this.widget.index);
+        this._selected = this.widget.imagesClassifierService.SelectedImage ==
+            this.widget.value();
+
+        print("Count for class ${this.widget.index} is $count");
+      });
+    }
+  }
+
   void handleSelected() {
     if (this._selected) {
-      this.widget.imagesClassifierService.SelectedClass = this.widget.index;
       this
           .widget
           .imagesClassifierService

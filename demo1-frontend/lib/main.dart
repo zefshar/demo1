@@ -154,7 +154,6 @@ class _HomePageState extends State<HomePage> {
 
     this.widget.imagesClassifierService.selectImageEvent.subscribe((args) {
       if (args is SelectImageArgs && ((args).value != null)) {
-        print('Image selected');
       }
     });
   }

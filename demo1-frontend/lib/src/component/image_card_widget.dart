@@ -1,3 +1,4 @@
+import 'package:demo1/src/model/result_changed_args.dart';
 import 'package:demo1/src/model/select_image_args.dart';
 import 'package:demo1/src/service/images_classifier_service.dart';
 import 'package:flutter/material.dart';
@@ -31,12 +32,22 @@ class _ImageCardWidgetState extends State<ImageCardWidget> {
     super.initState();
     this._selected = this.widget.imagesClassifierService.SelectedImage ==
         this.widget.value();
+    this
+        .widget
+        .imagesClassifierService
+        .resultChangedEvent
+        .subscribe(this.resultIsChanged);
     handleSelected();
   }
 
   @override
   void dispose() {
     disableListening();
+    this
+        .widget
+        .imagesClassifierService
+        .resultChangedEvent
+        .unsubscribe(this.resultIsChanged);
     super.dispose();
   }
 
@@ -46,6 +57,9 @@ class _ImageCardWidgetState extends State<ImageCardWidget> {
         onTap: () {
           setState(() {
             this._selected = !this._selected;
+            this.widget.imagesClassifierService.SelectedImage = this._selected
+                ? Tuple2(this.widget.imageReference, this.widget.key)
+                : null;
             handleSelected();
           });
         },
@@ -83,10 +97,17 @@ class _ImageCardWidgetState extends State<ImageCardWidget> {
             )));
   }
 
+  void resultIsChanged(ResultChangedArgs? args) {
+    if (args != null && args.imageReference == this.widget.imageReference) {
+      this.setState(() {
+        this._selected = this.widget.imagesClassifierService.SelectedImage ==
+            this.widget.value();
+      });
+    }
+  }
+
   void handleSelected() {
     if (this._selected) {
-      this.widget.imagesClassifierService.SelectedImage =
-          Tuple2(this.widget.imageReference, this.widget.key);
       this
           .widget
           .imagesClassifierService

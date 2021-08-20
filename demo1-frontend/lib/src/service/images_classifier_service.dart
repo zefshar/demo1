@@ -115,17 +115,42 @@ class ImagesClassifierService {
         .broadcast(ResultChangedArgs(classNumber, imageReference, remove: true));
   }
 
-  set SelectedImage(Tuple2<String?, Key?>? value) {
-    this._selectedImage = value;
-    this.selectImageEvent.broadcast(SelectImageArgs(value));
-  }
-
   Tuple2<String?, Key?>? get SelectedImage => this._selectedImage;
 
-  set SelectedClass(int? value) {
-    this._selectedClass = value;
-    this.selectClassEvent.broadcast(SelectClassArgs(value));
+  set SelectedImage(Tuple2<String?, Key?>? value) {
+    final event = Tuple2(value?.item1, this._selectedClass);
+    if (event.item1 != null && event.item2 != null) {
+      this._selectedImage = null;
+      this._selectedClass = null;
+      this.selectImageEvent.broadcast(SelectImageArgs(null));
+      this.selectClassEvent.broadcast(SelectClassArgs(null));
+      this.assignImageToClass(event.item1!, event.item2!);
+    } else {
+      this._selectedImage = value;
+      this.selectImageEvent.broadcast(SelectImageArgs(value));
+    }
   }
 
   int? get SelectedClass => this._selectedClass;
+
+  set SelectedClass(int? value) {
+    final event = Tuple2(this._selectedImage?.item1, value);
+    if (event.item1 != null && event.item2 != null) {
+      this._selectedImage = null;
+      this._selectedClass = null;
+      this.selectImageEvent.broadcast(SelectImageArgs(null));
+      this.selectClassEvent.broadcast(SelectClassArgs(null));
+      this.assignImageToClass(event.item1!, event.item2!);
+    } else {
+      this._selectedClass = value;
+      this.selectClassEvent.broadcast(SelectClassArgs(value));
+    }
+  }
+
+  int imagesCount(int index) {
+    if (!this._result.containsKey(index)) {
+      return 0;
+    }
+    return this._result[index]!.values.reduce((x, y) => x + y);
+  }
 }
