@@ -1,3 +1,4 @@
+import 'package:demo1/src/component/compare_images_dialog.dart';
 import 'package:demo1/src/model/reset_results_args.dart';
 import 'package:demo1/src/model/result_changed_args.dart';
 import 'package:demo1/src/model/select_class_args.dart';
@@ -160,6 +161,21 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
           ),
           Positioned(
             right: 13,
+            bottom: 63,
+            child: GestureDetector(
+              onTap: this.compareLastTwoImages,
+              child: Opacity(
+                opacity: this.count > 1 ? 1.0 : 0.0,
+                child: Icon(
+                  Icons.compare_sharp,
+                  color: Colors.black.withOpacity(0.5),
+                  size: 42.0,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 13,
             top: 23,
             child: GestureDetector(
               onTap: this.dropLastImage,
@@ -176,6 +192,24 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
         ]))),
       ),
     );
+  }
+
+  void dropLastImage() {
+    this
+        .widget
+        .imagesClassifierService
+        .dropLastImageFromClass(this.widget.value());
+  }
+
+  void compareLastTwoImages() async {
+    final imageReferences = this
+        .widget
+        .imagesClassifierService
+        .lastTwoImagesForClass(this.widget.value());
+    if (imageReferences != null) {
+      final imageUrls = imageReferences.map((e) => e.item1).toList();
+      await showDialog(context: context, builder: (_) => CompareImagesDialog(imageUrls[0], imageUrls[1]));
+    }
   }
 
   void resultIsChanged(ResultChangedArgs? args) {
@@ -230,12 +264,5 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
         .imagesClassifierService
         .selectClassEvent
         .unsubscribe(this.selectImageHandler);
-  }
-
-  void dropLastImage() {
-    this
-        .widget
-        .imagesClassifierService
-        .dropLastImageFromClass(this.widget.value());
   }
 }

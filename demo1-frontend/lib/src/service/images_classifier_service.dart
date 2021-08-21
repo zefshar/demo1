@@ -212,4 +212,12 @@ class ImagesClassifierService {
     }
     return null;
   }
+
+  Iterable<Tuple2<String?, Key?>>? lastTwoImagesForClass(int value) {
+    if (this._classifierResult.containsKey(value) &&
+        this._classifierResult[value]!.length > 1) {
+      return this._classifierResult[value]?.keys.skip(this._classifierResult[value]!.length - 2);
+    }
+    return null;
+  }
 }
