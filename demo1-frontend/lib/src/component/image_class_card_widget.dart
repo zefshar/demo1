@@ -161,7 +161,7 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
           ),
           Positioned(
             right: 13,
-            bottom: 63,
+            bottom: 73,
             child: GestureDetector(
               onTap: this.compareLastTwoImages,
               child: Opacity(
@@ -207,7 +207,7 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
         .imagesClassifierService
         .lastTwoImagesForClass(this.widget.value());
     if (imageReferences != null) {
-      final imageUrls = imageReferences.map((e) => e.item1).toList();
+      final imageUrls = imageReferences.toList();
       await showDialog(context: context, builder: (_) => CompareImagesDialog(imageUrls[0], imageUrls[1]));
     }
   }
