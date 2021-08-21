@@ -97,7 +97,7 @@ function docker_build {
 function build {
     CURRENT_FOLDER=$PWD
     cd demo1-frontend
-    flutter build web --release
+    flutter build web --web-renderer html --release
     cd $CURRENT_FOLDER
     tar -cf demo1.flutter -C demo1-frontend/build/web .
 

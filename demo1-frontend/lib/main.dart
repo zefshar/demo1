@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:demo1/src/component/app_bar_title_widget.dart';
 import 'package:demo1/src/component/gallery_toolbar_widget.dart';
 import 'package:demo1/src/component/image_card_widget.dart';
@@ -98,6 +100,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
   late List<Tuple2<String?, Key?>> unclassifiedImages;
 
   @override
@@ -220,9 +223,17 @@ class _HomePageState extends State<HomePage> {
       if (args is SharedFolderArgs) {
         this.isValidShardFolder(args.value!).then((value) {
           if (value) {
-            print('There is valid shared folder ${args.value}');
+            final folderId = GoogleDriveLink.getFolderId(args.value!);
+            print('There is valid shared folder ${folderId}');
+            this.requestImageLinks(folderId).then((imageLinks) {
+              final fullLinks = imageLinks.asMap().entries.map((e) => Tuple2('https://drive.google.com/uc?id=${e.value}', ValueKey(e.key)));
+              setState(() {
+                this.unclassifiedImages.clear();
+                this.unclassifiedImages.addAll(fullLinks);
+              });
+            });
           } else {
-            print('The folder ${args.value} is invalid');
+            print('Can\'t find correct shared folder-id in ${args.value}');
           }
         });
       }
@@ -348,4 +359,26 @@ class _HomePageState extends State<HomePage> {
       return Future.value(false);
     }
   }
+
+  Future<List<String>> requestImageLinks(String folderId) async {
+    try {
+      var apiEndpoint = const String.fromEnvironment('API_ENDPOINT');
+      return http.get(Uri.parse('$apiEndpoint/files?$folderId'), headers: {
+        'Accept': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': '*',
+      }).then((response) {
+        Map jsonData = json.decode(response.body) as Map;
+        final List<String> links = jsonData['files'].map((element) => element['id']).toList().cast<String>();
+        return links;
+      }).onError((error, stackTrace) {
+        print('Error: $error');
+        return [];
+      });
+    } catch (e) {
+      print('Error: $e');
+      return Future.value([]);
+    }
+  }
 }
+

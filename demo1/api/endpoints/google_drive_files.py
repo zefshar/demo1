@@ -42,4 +42,6 @@ class GoogleDriveFiles:
                 await response.json()).encode('utf-8')
             return web.Response(status=response.status, body=content, headers={
                 'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': '*',
                 'Content-Length': str(len(content))})
