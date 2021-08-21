@@ -3,6 +3,7 @@ from base64 import b64encode
 from datetime import datetime, timedelta
 from json import dumps, loads
 from os import environ
+from typing import List
 
 from aiohttp import ClientSession, web
 from aiohttp.formdata import FormData
@@ -26,20 +27,43 @@ class GoogleDriveFiles:
             return private_key
 
     @classmethod
-    async def process(cls, path: str, query: dict, application_path: str = None) -> web.Response:
-        """/api/files?
-        """
-        folder_id = next(iter(query.keys()))
+    async def _process_folders(cls, client_session, folder_ids: List[str]):
+        images = []
+        sub_folder_ids = []
 
-        async with ClientSession() as client_session:
+        for folder_id in folder_ids:
             response = await AuthMouse(
                 service_account=environ['google_service_account'],
                 private_key=cls._get_private_key(),
                 scope='https://www.googleapis.com/auth/drive.metadata.readonly'
             ).client(client_session).get(f'https://www.googleapis.com/drive/v3/files?q=%22{folder_id}%22%20in%20parents')
 
-            content = dumps(
-                await response.json()).encode('utf-8')
+            folder_data = await response.json()
+            for entry in folder_data['files']:
+                if entry['kind'] == 'drive#file' and entry['mimeType'].startswith('image'):
+                    images.append(entry)
+                if entry['kind'] == 'drive#file' and entry['mimeType'] == 'application/vnd.google-apps.folder':
+                    sub_folder_ids.append(entry['id'])
+
+        return images, sub_folder_ids, response
+
+    @classmethod
+    async def process(cls, path: str, query: dict, application_path: str = None) -> web.Response:
+        """/api/files?
+        """
+        folder_id = next(iter(query.keys()))
+
+        async with ClientSession() as client_session:
+            list_of_files = {'files': []}
+
+            images, sub_folders_ids, response = await cls._process_folders(client_session, [folder_id])
+            list_of_files['files'].extend(images)
+
+            if sub_folders_ids and response.status == 200:
+                images, sub_folders_ids, response = await cls._process_folders(client_session, sub_folders_ids)
+                list_of_files['files'].extend(images)
+
+            content = dumps(list_of_files).encode('utf-8') if response.status == 200 else dumps(response.json()).encode('utf-8')
             return web.Response(status=response.status, body=content, headers={
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
