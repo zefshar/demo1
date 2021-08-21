@@ -154,7 +154,7 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
         this._selected = this.widget.imagesClassifierService.SelectedImage ==
             this.widget.value();
 
-        print("Count for class ${this.widget.index} is $count");
+        // print("Count for class ${this.widget.index} is $count");
       });
     }
   }

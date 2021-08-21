@@ -170,7 +170,7 @@ class _HomePageState extends State<HomePage> {
             this
                 .widget
                 .imagesClassifierService
-                .allKeysHaveClassified(rowKeys)) {
+                .areAllKeysHaveClassified(rowKeys)) {
           this.setState(() {
             this
                 .unclassifiedImages
@@ -284,9 +284,9 @@ class _HomePageState extends State<HomePage> {
         data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes));
 
     var table = excel.tables.entries.first.value;
-    table.appendRow(['image1.jpg', 'A']);
-    table.appendRow(['image2.jpg', 'B']);
-    table.appendRow(['image3.jpg', '']);
+    this.widget.imagesClassifierService.ClassifierResult.forEach((element) {
+      table.appendRow(element.toList());
+    });
 
     final bytes = excel.encode();
 

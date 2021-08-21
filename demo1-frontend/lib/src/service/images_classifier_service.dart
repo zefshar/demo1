@@ -7,6 +7,7 @@ import 'package:demo1/src/model/result_changed_args.dart';
 import 'package:demo1/src/model/select_class_args.dart';
 import 'package:demo1/src/model/select_image_args.dart';
 import 'package:demo1/src/model/shared_folder_args.dart';
+import 'package:demo1/src/utils.dart';
 import 'package:event/event.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:tuple/tuple.dart';
@@ -80,9 +81,13 @@ class ImagesClassifierService {
     return this._sharedFolder;
   }
 
-  Map<int, List<String>>? get Result {
-    return this._classifierResult.map((key, value) =>
-        MapEntry(key, value.entries.map((entry) => entry.key.item1!).toList()));
+  // @returns (imageReference, imageIndex, className, count)
+  Iterable<Tuple4<String?, int?, String?, int?>> get ClassifierResult {
+    return this._classifierResult.entries.map((a) => a.value.entries.map((b) => Tuple4(
+            b.key.item1,
+            (b.key.item2 as ValueKey<int>).value,
+            GetExcelColumnName(a.key + 1),
+            b.value))).expand((entry) => entry).toList();
   }
 
   void assignImageToClass(
@@ -149,7 +154,8 @@ class ImagesClassifierService {
   }
 
   int imagesCount(int index) {
-    if (!this._classifierResult.containsKey(index) || this._classifierResult[index]!.isEmpty) {
+    if (!this._classifierResult.containsKey(index) ||
+        this._classifierResult[index]!.isEmpty) {
       return 0;
     }
     return this._classifierResult[index]!.values.reduce((x, y) => x + y);
@@ -162,7 +168,7 @@ class ImagesClassifierService {
         .any((element) => element.value.containsKey(value));
   }
 
-  bool allKeysHaveClassified(Set<Key> keys) {
+  bool areAllKeysHaveClassified(Set<Key> keys) {
     return keys.every((key) => this
         ._classifierResult
         .entries
@@ -170,7 +176,8 @@ class ImagesClassifierService {
   }
 
   void dropLastImageFromClass(int value) {
-    if (this._classifierResult.containsKey(value) && this._classifierResult[value]!.isNotEmpty) {
+    if (this._classifierResult.containsKey(value) &&
+        this._classifierResult[value]!.isNotEmpty) {
       final lastImage = this._classifierResult[value]?.keys.last;
       this.dropImageFromClass(lastImage!, value);
     }
