@@ -5,12 +5,15 @@ import 'package:demo1/src/component/image_class_card_widget.dart';
 import 'package:demo1/src/model/classes_count_args.dart';
 import 'package:demo1/src/model/columns_count_args.dart';
 import 'package:demo1/src/model/download_report_args.dart';
+import 'package:demo1/src/model/google_drive_link.dart';
 import 'package:demo1/src/model/result_changed_args.dart';
+import 'package:demo1/src/model/shared_folder_args.dart';
 import 'package:demo1/src/service/images_classifier_service.dart';
 import 'package:excel/excel.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:tuple/tuple.dart';
 //import 'package:pdf/widgets.dart' as pw;
 import 'package:universal_html/html.dart' as html;
@@ -178,8 +181,8 @@ class _HomePageState extends State<HomePage> {
           });
         }
         if (args.remove!) {
-          final upperIndex = this.unclassifiedImages.indexWhere((element) =>
-              (element.item2 as ValueKey<int>).value >= index);
+          final upperIndex = this.unclassifiedImages.indexWhere(
+              (element) => (element.item2 as ValueKey<int>).value >= index);
           // If indexes are equals replace image url
           if (this.unclassifiedImages[upperIndex].item2 ==
               args.imageReference!.item2) {
@@ -208,6 +211,39 @@ class _HomePageState extends State<HomePage> {
         }
       }
     });
+
+    this
+        .widget
+        .imagesClassifierService
+        .sharedFolderChangedEvent
+        .subscribe((args) {
+      if (args is SharedFolderArgs) {
+        this.isValidShardFolder(args.value!).then((value) {
+          if (value) {
+            print('There is valid shared folder ${args.value}');
+          } else {
+            print('The folder ${args.value} is invalid');
+          }
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    this
+        .widget
+        .imagesClassifierService
+        .classesCountChangedEvent
+        .unsubscribeAll();
+    this.widget.imagesClassifierService.downloadReportEvent.unsubscribeAll();
+    this.widget.imagesClassifierService.resultChangedEvent.unsubscribeAll();
+    this
+        .widget
+        .imagesClassifierService
+        .sharedFolderChangedEvent
+        .unsubscribeAll();
+    super.dispose();
   }
 
   @override
@@ -291,5 +327,25 @@ class _HomePageState extends State<HomePage> {
     final bytes = excel.encode();
 
     return bytes!;
+  }
+
+  Future<bool> isValidShardFolder(String value) async {
+    try {
+      final folderId = Uri.parse(value).isAbsolute
+          ? GoogleDriveLink.getFolderId(value)
+          : value;
+      // TODO: fix requests (There were block by CORS policy)
+      // final folderLink = 'https://drive.google.com/drive/folders/$folderId';
+
+      // final response = await http.get(Uri.parse(folderLink), headers: {
+      //   'Accept': '*/*',
+      //   'Access-Control-Allow-Origin': '*',
+      // });
+      // return Future.value(response.body.contains('"$folderId"'));
+      return Future.value(folderId.isNotEmpty);
+    } catch (e) {
+      print('Error: $e');
+      return Future.value(false);
+    }
   }
 }

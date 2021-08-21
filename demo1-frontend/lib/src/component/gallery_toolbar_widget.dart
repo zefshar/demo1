@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 
 import 'gallery_toolbar_widget/choose_images_source_button.dart';
 
+const int SHARED_FOLDER_ID_MINIMAL_LENGTH = '1vbuT3Ye50ihdOHe3UVaOeiQhT4t5KN8n'.length;
+
 class GalleryToolbarWidget extends StatefulWidget {
   final ImagesClassifierService imagesClassifierService;
 
@@ -53,17 +55,24 @@ class _GalleryToolbarWidgetState extends State<GalleryToolbarWidget> {
                       child: SizedBox.fromSize(
                           size: Size(320, 50),
                           child: TextFormField(
-                              focusNode: _sharedFolderFocusNode,
-                              controller: _sharedFolderEditingController,
-                              cursorColor: Color(0x0),
-                              decoration: InputDecoration(
-                                filled: true,
-                                fillColor: Colors.white,
-                                labelText:
-                                    'Put path to the shared folder or folder id',
-                                //errorText: widget._classesCount == 1 ? 'Value should be more then 2': '',
-                                border: InputBorder.none,
-                              ))),
+                            focusNode: _sharedFolderFocusNode,
+                            controller: _sharedFolderEditingController,
+                            cursorColor: Color(0x0),
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              labelText:
+                                  'Put path to the shared folder or folder id',
+                              //errorText: widget._classesCount == 1 ? 'Value should be more then 2': '',
+                              border: InputBorder.none,
+                            ),
+                            onChanged: (value) {
+                              if (value.length >=
+                                      SHARED_FOLDER_ID_MINIMAL_LENGTH) {
+                                this.widget.imagesClassifierService.SharedFolder = value;
+                              }
+                            },
+                          )),
                       childFocusNode: _sharedFolderFocusNode),
                 ),
                 Padding(

@@ -29,10 +29,15 @@ dependencies:
   universal_html: ^2.0.8
   # Utility stuff
   tuple: ^2.0.0
+  # Shared folder requests
+  dio: ^4.0.0
+  http: ^0.13.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+  test:
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
