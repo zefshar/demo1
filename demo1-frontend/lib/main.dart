@@ -288,33 +288,25 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Container(
           child: Column(children: [
-        Flexible(
-          flex: 2,
-          child: Container(
-            constraints:
-                BoxConstraints(maxHeight: 200, minWidth: double.infinity),
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: classes,
-            ),
+        Container(
+          constraints: BoxConstraints(
+              maxHeight: 200, minHeight: 200, minWidth: double.infinity),
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: classes,
           ),
         ),
-        Flexible(
-          flex: 1,
-          child: Container(
-            constraints:
-                BoxConstraints(maxHeight: 62, minWidth: double.infinity),
-            child: GalleryToolbarWidget(
-                imagesClassifierService: widget.imagesClassifierService),
-          ),
+        Container(
+          constraints: BoxConstraints(maxHeight: 62, minWidth: double.infinity),
+          child: GalleryToolbarWidget(
+              imagesClassifierService: widget.imagesClassifierService),
         ),
         Expanded(
-            flex: 3,
             child: GridView.count(
-              crossAxisCount: widget.imagesClassifierService.ColumnsCount ?? 0,
-              // Generate 100 widgets that display their index in the List.
-              children: imagesForClassification,
-            )),
+          crossAxisCount: widget.imagesClassifierService.ColumnsCount ?? 0,
+          // Generate 100 widgets that display their index in the List.
+          children: imagesForClassification,
+        )),
       ])),
     );
 
@@ -364,7 +356,8 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<String>> requestImageLinks(String folderId) async {
     try {
-      var apiEndpoint = const String.fromEnvironment('API_ENDPOINT', defaultValue: '/demo1/api');
+      var apiEndpoint = const String.fromEnvironment('API_ENDPOINT',
+          defaultValue: '/demo1/api');
       return http.get(Uri.parse('$apiEndpoint/files?$folderId'), headers: {
         'Accept': 'application/json',
         'Access-Control-Allow-Origin': '*',
