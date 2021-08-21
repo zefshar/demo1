@@ -121,6 +121,12 @@ class ImagesClassifierService {
         ResultChangedArgs(classNumber, imageReference, remove: true));
   }
 
+  void resetResults() {
+    this._classifierResult.clear();
+    this.resultChangedEvent.broadcast(
+        ResultChangedArgs(0, Tuple2('', ValueKey(-1)), remove: true));
+  }
+
   Tuple2<String?, Key?>? get SelectedImage => this._selectedImage;
 
   set SelectedImage(Tuple2<String?, Key?>? value) {
@@ -181,5 +187,13 @@ class ImagesClassifierService {
       final lastImage = this._classifierResult[value]?.keys.last;
       this.dropImageFromClass(lastImage!, value);
     }
+  }
+
+  String? lastImageForClass(int value) {
+    if (this._classifierResult.containsKey(value) &&
+        this._classifierResult[value]!.isNotEmpty) {
+      return this._classifierResult[value]?.keys.last.item1;
+    }
+    return null;
   }
 }

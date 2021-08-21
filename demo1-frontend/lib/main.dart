@@ -100,7 +100,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   late List<Tuple2<String?, Key?>> unclassifiedImages;
 
   @override
@@ -226,10 +225,13 @@ class _HomePageState extends State<HomePage> {
             final folderId = GoogleDriveLink.getFolderId(args.value!);
             print('There is valid shared folder ${folderId}');
             this.requestImageLinks(folderId).then((imageLinks) {
-              final fullLinks = imageLinks.asMap().entries.map((e) => Tuple2('https://drive.google.com/uc?id=${e.value}', ValueKey(e.key)));
+              final fullLinks = imageLinks.asMap().entries.map((e) => Tuple2(
+                  'https://drive.google.com/uc?id=${e.value}',
+                  ValueKey(e.key)));
               setState(() {
                 this.unclassifiedImages.clear();
                 this.unclassifiedImages.addAll(fullLinks);
+                this.widget.imagesClassifierService.resetResults();
               });
             });
           } else {
@@ -369,7 +371,10 @@ class _HomePageState extends State<HomePage> {
         'Access-Control-Allow-Headers': '*',
       }).then((response) {
         Map jsonData = json.decode(response.body) as Map;
-        final List<String> links = jsonData['files'].map((element) => element['id']).toList().cast<String>();
+        final List<String> links = jsonData['files']
+            .map((element) => element['id'])
+            .toList()
+            .cast<String>();
         return links;
       }).onError((error, stackTrace) {
         print('Error: $error');
@@ -381,4 +386,3 @@ class _HomePageState extends State<HomePage> {
     }
   }
 }
-

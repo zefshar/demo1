@@ -61,9 +61,8 @@ class _ImageCardWidgetState extends State<ImageCardWidget> {
         if (!this._isBlank) {
           setState(() {
             this._selected = !this._selected;
-            this.widget.imagesClassifierService.SelectedImage = this._selected
-                ? this.widget.value()
-                : null;
+            this.widget.imagesClassifierService.SelectedImage =
+                this._selected ? this.widget.value() : null;
             handleSelected();
           });
         }
@@ -80,7 +79,10 @@ class _ImageCardWidgetState extends State<ImageCardWidget> {
                   children: [
                     Image(
                       fit: BoxFit.fitWidth,
-                      image: NetworkImage(this.widget.imageReference!),
+                      image: NetworkImage((this.widget.imageReference ?? '')
+                              .isEmpty
+                          ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+                          : this.widget.imageReference!),
                     ),
                     Positioned(
                       right: 13,

@@ -24,12 +24,18 @@ class ImageClassCardWidget extends StatefulWidget {
 class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
   int count = 0;
   late bool _selected;
+  late String? _lastImageUrl;
 
   @override
   void initState() {
     super.initState();
     this._selected = this.widget.imagesClassifierService.SelectedImage ==
         this.widget.value();
+
+    this._lastImageUrl = this
+        .widget
+        .imagesClassifierService
+        .lastImageForClass(this.widget.value());
     this
         .widget
         .imagesClassifierService
@@ -124,8 +130,9 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
                       alignment: Alignment.topLeft,
                       child: Image(
                         fit: BoxFit.fitWidth,
-                        image: NetworkImage(
-                            'https://flutter.github.io/assets-for-api-docs/assets/widgets/owl.jpg'),
+                        image: NetworkImage((this._lastImageUrl ?? '').isEmpty
+                            ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+                            : this._lastImageUrl!),
                       ))),
             ],
           ),
@@ -154,7 +161,10 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
         this._selected = this.widget.imagesClassifierService.SelectedImage ==
             this.widget.value();
 
-        // print("Count for class ${this.widget.index} is $count");
+        this._lastImageUrl = this
+            .widget
+            .imagesClassifierService
+            .lastImageForClass(this.widget.value());
       });
     }
   }
