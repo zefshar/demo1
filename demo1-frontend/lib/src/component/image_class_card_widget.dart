@@ -1,3 +1,4 @@
+import 'package:demo1/src/model/reset_results_args.dart';
 import 'package:demo1/src/model/result_changed_args.dart';
 import 'package:demo1/src/model/select_class_args.dart';
 import 'package:demo1/src/service/images_classifier_service.dart';
@@ -36,11 +37,18 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
         .widget
         .imagesClassifierService
         .lastImageForClass(this.widget.value());
+
+    // Subscriptions
     this
         .widget
         .imagesClassifierService
         .resultChangedEvent
         .subscribe(this.resultIsChanged);
+    this
+        .widget
+        .imagesClassifierService
+        .resetResultsEvent
+        .subscribe(this.resetResults);
     handleSelected();
   }
 
@@ -52,6 +60,11 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
         .imagesClassifierService
         .resultChangedEvent
         .unsubscribe(this.resultIsChanged);
+    this
+        .widget
+        .imagesClassifierService
+        .resetResultsEvent
+        .unsubscribe(this.resetResults);
     super.dispose();
   }
 
@@ -67,12 +80,7 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
             handleSelected();
           });
         },
-        onDoubleTap: () {
-          this
-              .widget
-              .imagesClassifierService
-              .dropLastImageFromClass(this.widget.value());
-        },
+        onDoubleTap: this.dropLastImage,
         child: Card(
             child: Center(
                 child: Stack(children: [
@@ -140,13 +148,28 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
           ),
           Positioned(
             right: 13,
-            top: 13,
+            bottom: 13,
             child: Opacity(
               opacity: this._selected ? 1.0 : 0.0,
               child: Icon(
                 Icons.check_circle,
                 color: Colors.black.withOpacity(0.5),
                 size: 42.0,
+              ),
+            ),
+          ),
+          Positioned(
+            right: 13,
+            top: 23,
+            child: GestureDetector(
+              onTap: this.dropLastImage,
+              child: Opacity(
+                opacity: (this._lastImageUrl ?? '').isNotEmpty ? 1.0 : 0.0,
+                child: Icon(
+                  Icons.clear,
+                  color: Colors.black.withOpacity(0.5),
+                  size: 42.0,
+                ),
               ),
             ),
           ),
@@ -169,6 +192,15 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
             .lastImageForClass(this.widget.value());
       });
     }
+  }
+
+  void resetResults(ResetResultsArgs? args) {
+    this.setState(() {
+      this.count = 0;
+      this._selected = false;
+
+      this._lastImageUrl = null;
+    });
   }
 
   void handleSelected() {
@@ -198,5 +230,12 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
         .imagesClassifierService
         .selectClassEvent
         .unsubscribe(this.selectImageHandler);
+  }
+
+  void dropLastImage() {
+    this
+        .widget
+        .imagesClassifierService
+        .dropLastImageFromClass(this.widget.value());
   }
 }

@@ -5,9 +5,9 @@ import 'package:tuple/tuple.dart';
 
 ///
 class ResultChangedArgs extends EventArgs {
-  int? classNumber;
-  Tuple2<String?, Key?>? imageReference;
-  bool? remove;
+  int classNumber;
+  Tuple2<String?, Key?> imageReference;
+  bool remove;
 
   ResultChangedArgs(this.classNumber, this.imageReference, {this.remove = false});
 }

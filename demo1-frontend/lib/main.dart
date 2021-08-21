@@ -167,11 +167,11 @@ class _HomePageState extends State<HomePage> {
       // Remove blank row
       final columnsCount = this.widget.imagesClassifierService.ColumnsCount!;
       if (args is ResultChangedArgs && columnsCount > 0) {
-        final index = (args.imageReference!.item2 as ValueKey).value as int;
+        final index = (args.imageReference.item2 as ValueKey).value as int;
         final int lowerBound = (index ~/ columnsCount) * columnsCount;
         final rowKeys = Set<Key>.from(List<Key>.generate(
             columnsCount, (index) => ValueKey(lowerBound + index)));
-        if (!args.remove! &&
+        if (!args.remove &&
             this
                 .widget
                 .imagesClassifierService
@@ -182,21 +182,21 @@ class _HomePageState extends State<HomePage> {
                 .removeWhere((element) => rowKeys.contains(element.item2));
           });
         }
-        if (args.remove!) {
+        if (args.remove) {
           final upperIndex = this.unclassifiedImages.indexWhere(
               (element) => (element.item2 as ValueKey<int>).value >= index);
           // If indexes are equals replace image url
           if (this.unclassifiedImages[upperIndex].item2 ==
-              args.imageReference!.item2) {
+              args.imageReference.item2) {
             this.setState(() {
-              this.unclassifiedImages[upperIndex] = args.imageReference!;
+              this.unclassifiedImages[upperIndex] = args.imageReference;
             });
           } else {
             // Else insert row
             final rowOfImageReferences = List<Tuple2<String?, Key?>>.generate(
                 columnsCount,
-                (index) => Tuple2(
-                    args.imageReference!.item1, ValueKey(lowerBound + index)));
+                (i) => Tuple2(
+                    (lowerBound + i) == index ? args.imageReference.item1: null, ValueKey(lowerBound + i)));
             this.setState(() {
               if (upperIndex > 0) {
                 this
@@ -240,6 +240,11 @@ class _HomePageState extends State<HomePage> {
         });
       }
     });
+
+    this.widget.imagesClassifierService.resetResultsEvent.subscribe((args) {
+      // Nothing do
+    });
+
   }
 
   @override
@@ -250,12 +255,13 @@ class _HomePageState extends State<HomePage> {
         .classesCountChangedEvent
         .unsubscribeAll();
     this.widget.imagesClassifierService.downloadReportEvent.unsubscribeAll();
-    this.widget.imagesClassifierService.resultChangedEvent.unsubscribeAll();
     this
         .widget
         .imagesClassifierService
         .sharedFolderChangedEvent
         .unsubscribeAll();
+    this.widget.imagesClassifierService.resultChangedEvent.unsubscribeAll();
+    this.widget.imagesClassifierService.resetResultsEvent.unsubscribeAll();
     super.dispose();
   }
 
@@ -266,8 +272,6 @@ class _HomePageState extends State<HomePage> {
         (int index) => ImageClassCardWidget(
             index: index,
             imagesClassifierService: this.widget.imagesClassifierService));
-
-    final size = MediaQuery.of(context).size;
 
     final imagesForClassification = this
         .unclassifiedImages
@@ -339,12 +343,13 @@ class _HomePageState extends State<HomePage> {
       final folderId = Uri.parse(value).isAbsolute
           ? GoogleDriveLink.getFolderId(value)
           : value;
-      // TODO: fix requests (There were block by CORS policy)
+      // // TODO: fix requests (There were block by CORS policy)
       // final folderLink = 'https://drive.google.com/drive/folders/$folderId';
 
       // final response = await http.get(Uri.parse(folderLink), headers: {
       //   'Accept': '*/*',
       //   'Access-Control-Allow-Origin': '*',
+      //   'Access-Control-Allow-Headers': '*',
       // });
       // return Future.value(response.body.contains('"$folderId"'));
       return Future.value(folderId.isNotEmpty);

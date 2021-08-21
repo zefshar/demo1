@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:demo1/src/model/classes_count_args.dart';
 import 'package:demo1/src/model/columns_count_args.dart';
 import 'package:demo1/src/model/download_report_args.dart';
+import 'package:demo1/src/model/reset_results_args.dart';
 import 'package:demo1/src/model/result_changed_args.dart';
 import 'package:demo1/src/model/select_class_args.dart';
 import 'package:demo1/src/model/select_image_args.dart';
@@ -41,13 +42,28 @@ class ImagesClassifierService {
 
   final resultChangedEvent = Event<ResultChangedArgs>();
 
+  final resetResultsEvent = Event<ResetResultsArgs>();
+
   final selectImageEvent = Event<SelectImageArgs>();
 
   final selectClassEvent = Event<SelectClassArgs>();
 
   set ClassesCount(int? value) {
+    final delta = (value ?? this._classesCount ?? 0) - (this._classesCount ?? 0);
     this._classesCount = value;
     this.classesCountChangedEvent.broadcast(ClassesCountArgs(value));
+    if (delta < 0) {
+      final minimalKey = this._classesCount ?? 0;
+      // Remove images from class
+      this._classifierResult.entries.forEach((e) {
+        if (e.key >= minimalKey) {
+          final classifiedImageForKey = Set.of(e.value.keys);
+          classifiedImageForKey.forEach((imageReference) {
+            this.dropImageFromClass(imageReference, e.key);
+          });
+        }
+      });
+    }
   }
 
   int? get ClassesCount {
@@ -123,8 +139,8 @@ class ImagesClassifierService {
 
   void resetResults() {
     this._classifierResult.clear();
-    this.resultChangedEvent.broadcast(
-        ResultChangedArgs(0, Tuple2('', ValueKey(-1)), remove: true));
+    this.resetResultsEvent.broadcast(
+        ResetResultsArgs());
   }
 
   Tuple2<String?, Key?>? get SelectedImage => this._selectedImage;
