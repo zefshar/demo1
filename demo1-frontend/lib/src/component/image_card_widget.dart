@@ -73,37 +73,38 @@ class _ImageCardWidgetState extends State<ImageCardWidget> {
           shape:
               const ContinuousRectangleBorder(borderRadius: BorderRadius.zero),
           child: Opacity(
-              opacity: this._isBlank ? 0.0 : 1.0,
-              child: Center(
-                child: Stack(
-                  children: [
-                    Image(
-                      fit: BoxFit.fitWidth,
-                      image: NetworkImage((this.widget.imageReference ?? '')
-                              .isEmpty
+            opacity: this._isBlank ? 0.0 : 1.0,
+            child: Stack(
+              children: [
+                Center(
+                    child: Image(
+                  fit: BoxFit.contain,
+                  image: NetworkImage(
+                      (this.widget.imageReference ?? '').isEmpty
                           ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
-                          : this.widget.imageReference!),
+                          : this.widget.imageReference!,
+                      scale: 0.1),
+                )),
+                Positioned(
+                  right: 13,
+                  top: 13,
+                  child: Opacity(
+                    opacity: this._selected ? 1.0 : 0.0,
+                    child: Icon(
+                      Icons.check_circle,
+                      color: Colors.black.withOpacity(0.5),
+                      size: 42.0,
                     ),
-                    Positioned(
-                      right: 13,
-                      top: 13,
-                      child: Opacity(
-                        opacity: this._selected ? 1.0 : 0.0,
-                        child: Icon(
-                          Icons.check_circle,
-                          color: Colors.black.withOpacity(0.5),
-                          size: 42.0,
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 13,
-                      top: 13,
-                      child: Text(this.widget.key?.toString() ?? ''),
-                    )
-                  ],
+                  ),
                 ),
-              ))),
+                Positioned(
+                  left: 13,
+                  top: 13,
+                  child: Text(this.widget.key?.toString() ?? ''),
+                )
+              ],
+            ),
+          )),
     );
   }
 

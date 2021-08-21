@@ -127,12 +127,14 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
                   child: Container(
                       height: 159,
                       width: 159,
-                      alignment: Alignment.topLeft,
+                      alignment: Alignment.center,
                       child: Image(
-                        fit: BoxFit.fitWidth,
-                        image: NetworkImage((this._lastImageUrl ?? '').isEmpty
-                            ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
-                            : this._lastImageUrl!),
+                        fit: BoxFit.contain,
+                        image: NetworkImage(
+                            (this._lastImageUrl ?? '').isEmpty
+                                ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg=='
+                                : this._lastImageUrl!,
+                            scale: 0.1),
                       ))),
             ],
           ),

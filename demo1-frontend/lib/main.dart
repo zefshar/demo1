@@ -364,7 +364,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<List<String>> requestImageLinks(String folderId) async {
     try {
-      var apiEndpoint = const String.fromEnvironment('API_ENDPOINT');
+      var apiEndpoint = const String.fromEnvironment('API_ENDPOINT', defaultValue: '/demo1/api');
       return http.get(Uri.parse('$apiEndpoint/files?$folderId'), headers: {
         'Accept': 'application/json',
         'Access-Control-Allow-Origin': '*',
