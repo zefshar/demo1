@@ -87,7 +87,7 @@ class AuthMouse():
                 return response
             # Refresh token
             self.access_token = None
-            environ['auth_mouse_access_token'] = None
+            environ['auth_mouse_access_token'] = ''
             modified_args = (args[0] + '&access_token=' + await self.get_access_token_async(client), ) + args[1:]
             return await method(*modified_args)
 
