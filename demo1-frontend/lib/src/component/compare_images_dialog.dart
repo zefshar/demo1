@@ -3,10 +3,12 @@ import 'package:flutter/widgets.dart';
 import 'package:tuple/tuple.dart';
 
 class CompareImagesDialog extends StatelessWidget {
+  final String classLabel;
   final Tuple2<String?, Key?> oldImageReference;
   final Tuple2<String?, Key?> newImageReference;
 
-  CompareImagesDialog(this.oldImageReference, this.newImageReference);
+  CompareImagesDialog(
+      this.classLabel, this.oldImageReference, this.newImageReference);
 
   @override
   Widget build(BuildContext context) {
@@ -48,20 +50,44 @@ class CompareImagesDialog extends StatelessWidget {
         ],
       ),
       Positioned(
+        right: 48.0,
+        child: Opacity(
+          opacity: 0.7,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(2.0), //or 15.0
+            child: Container(
+              height: 42.0,
+              width: 62.0,
+              color: Colors.white,
+              child: Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Class ${this.classLabel}',
+                  style: const TextStyle(color: Colors.black45),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      Positioned(
         right: 0.0,
         child: GestureDetector(
           onTap: () {
             Navigator.of(context).pop();
           },
-          child: Align(
-            alignment: Alignment.topRight,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(2.0), //or 15.0
-              child: Container(
-                height: 42.0,
-                width: 42.0,
-                color: Colors.white,
-                child: Icon(Icons.close, color: Colors.black45),
+          child: Opacity(
+            opacity: 0.7,
+            child: Align(
+              alignment: Alignment.topRight,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(2.0), //or 15.0
+                child: Container(
+                  height: 42.0,
+                  width: 42.0,
+                  color: Colors.white,
+                  child: Icon(Icons.close, color: Colors.black45),
+                ),
               ),
             ),
           ),

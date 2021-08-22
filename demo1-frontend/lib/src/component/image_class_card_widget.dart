@@ -208,7 +208,7 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
         .lastTwoImagesForClass(this.widget.value());
     if (imageReferences != null) {
       final imageUrls = imageReferences.toList();
-      await showDialog(context: context, builder: (_) => CompareImagesDialog(imageUrls[0], imageUrls[1]));
+      await showDialog(context: context, builder: (_) => CompareImagesDialog(GetExcelColumnName(widget.index + 1), imageUrls[0], imageUrls[1]));
     }
   }
 
