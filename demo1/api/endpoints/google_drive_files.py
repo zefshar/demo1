@@ -39,11 +39,12 @@ class GoogleDriveFiles:
             ).client(client_session).get(f'https://www.googleapis.com/drive/v3/files?q=%22{folder_id}%22%20in%20parents')
 
             folder_data = await response.json()
-            for entry in folder_data['files']:
-                if entry['kind'] == 'drive#file' and entry['mimeType'].startswith('image'):
-                    images.append(entry)
-                if entry['kind'] == 'drive#file' and entry['mimeType'] == 'application/vnd.google-apps.folder':
-                    sub_folder_ids.append(entry['id'])
+            if 'files' in folder_data:
+                for entry in folder_data['files']:
+                    if entry['kind'] == 'drive#file' and entry['mimeType'].startswith('image'):
+                        images.append(entry)
+                    if entry['kind'] == 'drive#file' and entry['mimeType'] == 'application/vnd.google-apps.folder':
+                        sub_folder_ids.append(entry['id'])
 
         return images, sub_folder_ids, response
 

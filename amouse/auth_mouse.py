@@ -83,7 +83,7 @@ class AuthMouse():
         async def _get_request_async(*args):
             modified_args = (args[0] + '&access_token=' + await self.get_access_token_async(client), ) + args[1:]
             response = await method(*modified_args)
-            if response.status != 400 or response.status != 401:
+            if response.status < 400 or response.status > 499:
                 return response
             # Refresh token
             self.access_token = None
