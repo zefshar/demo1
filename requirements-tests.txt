@@ -1,5 +1,8 @@
-tensorflow
-keras
+# Tensorflow framework
+# tensorflow
+# keras
+# Torch framework
+torch
 pandas
 numpy
 pillow
