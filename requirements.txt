@@ -8,6 +8,6 @@ google-auth-oauthlib
 # AIOHTTP
 aiohttp
 # Cryptography (fro replacement google dependencies)
-PyCryptodome
+pycryptodome
 # ROUTE 53 STUFF
 boto3
