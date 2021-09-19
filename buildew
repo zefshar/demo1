@@ -1,5 +1,6 @@
 #!/bin/bash
 
+DEFAULT_PIP_TIMEOUT=1000 #seconds
 PYTHON=python3.9
 # CHECK PYTHON 3
 if command -v $PYTHON &>/dev/null; then
@@ -52,9 +53,9 @@ if [ ! -d .venv ]; then
         curl https://bootstrap.pypa.io/get-pip.py -o .pip/get-pip.py || exit 1
     fi
     .venv/bin/python3 .pip/get-pip.py || exit 1
-    .venv/bin/pip3 install -r requirements.txt || exit 1
-    .venv/bin/pip3 install -r requirements-tests.txt || exit 1
-    .venv/bin/pip3 install -r requirements-dev.txt || exit 1
+    .venv/bin/pip3 --default-timeout=$DEFAULT_PIP_TIMEOUT install -r requirements.txt || exit 1
+    .venv/bin/pip3 --default-timeout=$DEFAULT_PIP_TIMEOUT install -r requirements-tests.txt || exit 1
+    .venv/bin/pip3 --default-timeout=$DEFAULT_PIP_TIMEOUT install -r requirements-dev.txt || exit 1
 fi
 
 if [ -f '.buildew' ]; then
@@ -161,9 +162,9 @@ fi
 
 if [ "x$COMMAND" == "xredeps" ]; then
     echo "Reinstall dependencies"
-    .venv/bin/pip3 install -r requirements.txt
-    .venv/bin/pip3 install -r requirements-tests.txt
-    .venv/bin/pip3 install -r requirements-dev.txt
+    .venv/bin/pip3 --default-timeout=$DEFAULT_PIP_TIMEOUT install -r requirements.txt
+    .venv/bin/pip3 --default-timeout=$DEFAULT_PIP_TIMEOUT install -r requirements-tests.txt
+    .venv/bin/pip3 --default-timeout=$DEFAULT_PIP_TIMEOUT install -r requirements-dev.txt
 fi
 
 if [ "x$COMMAND" == "xclean" ]; then
