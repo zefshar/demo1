@@ -4,18 +4,43 @@ import 'package:flutter/services.dart';
 
 import 'app_bar_title_widget/save_results_button.dart';
 
-class AppBarTitleWidget extends StatelessWidget {
+class ClassificationResultsTitleWidget extends StatefulWidget {
   final String title;
   final ImagesClassifierService imagesClassifierService;
 
-  AppBarTitleWidget(
+  ClassificationResultsTitleWidget(
       {Key? key, required this.title, required this.imagesClassifierService})
       : super(key: key);
 
   @override
+  _ClassificationResultsTitleWidgetState createState() =>
+      _ClassificationResultsTitleWidgetState();
+}
+
+class _ClassificationResultsTitleWidgetState
+    extends State<ClassificationResultsTitleWidget> {
+  late FocusNode _classificationResultsFocusNode;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _classificationResultsFocusNode = FocusNode();
+  }
+
+  @override
+  void dispose() {
+    _classificationResultsFocusNode.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    var _textEditingController = TextEditingController(
-        text: this.imagesClassifierService.ClassesCount?.toString());
+    var _classesCountEditingController = TextEditingController(
+        text: this.widget.imagesClassifierService.ClassesCount?.toString());
+    var _titleEditingController =
+        TextEditingController(text: this.widget.title);
 
     return Container(
         alignment: Alignment.centerRight,
@@ -23,14 +48,21 @@ class AppBarTitleWidget extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(this.title),
+                EditableText(
+                    controller: _titleEditingController,
+                    focusNode: _classificationResultsFocusNode,
+                    style: const TextStyle(),
+                    cursorColor: Colors.black,
+                    backgroundCursorColor: Colors.green),
                 Spacer(),
                 Padding(
                     padding: EdgeInsets.fromLTRB(0, 6, 16, 0),
                     child: SaveResultsButton(
                       onPressed: () {
-                        this.imagesClassifierService.FinishedClassification =
-                            true;
+                        this
+                            .widget
+                            .imagesClassifierService
+                            .FinishedClassification = true;
                       },
                     )),
                 Padding(
@@ -39,7 +71,7 @@ class AppBarTitleWidget extends StatelessWidget {
                       width: 120.0,
                       height: 50,
                       child: TextFormField(
-                        controller: _textEditingController,
+                        controller: _classesCountEditingController,
                         cursorColor: Color(0x0),
                         decoration: InputDecoration(
                           filled: true,
@@ -50,7 +82,7 @@ class AppBarTitleWidget extends StatelessWidget {
                         ),
                         keyboardType: TextInputType.number,
                         onChanged: (value) {
-                          this.imagesClassifierService.ClassesCount =
+                          this.widget.imagesClassifierService.ClassesCount =
                               value.isEmpty ? null : int.parse(value);
                         },
                         inputFormatters: <TextInputFormatter>[

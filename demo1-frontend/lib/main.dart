@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:demo1/src/component/app_bar_title_widget.dart';
+import 'package:demo1/src/component/classification_results_title_widget.dart';
 import 'package:demo1/src/component/gallery_toolbar_widget.dart';
 import 'package:demo1/src/component/image_card_widget.dart';
 import 'package:demo1/src/component/image_class_card_widget.dart';
@@ -78,7 +78,7 @@ class Demo1 extends StatelessWidget {
             visualDensity: VisualDensity.adaptivePlatformDensity,
             fontFamily: 'TexGyreHeros'),
         home: HomePage(
-          title: 'Image classifier',
+          title: '<Classification results file name>',
           imagesClassifierService: ImagesClassifierService(),
         ),
         debugShowCheckedModeBanner: false,
@@ -196,7 +196,10 @@ class _HomePageState extends State<HomePage> {
             final rowOfImageReferences = List<Tuple2<String?, Key?>>.generate(
                 columnsCount,
                 (i) => Tuple2(
-                    (lowerBound + i) == index ? args.imageReference.item1: null, ValueKey(lowerBound + i)));
+                    (lowerBound + i) == index
+                        ? args.imageReference.item1
+                        : null,
+                    ValueKey(lowerBound + i)));
             this.setState(() {
               if (upperIndex > 0) {
                 this
@@ -244,7 +247,6 @@ class _HomePageState extends State<HomePage> {
     this.widget.imagesClassifierService.resetResultsEvent.subscribe((args) {
       // Nothing do
     });
-
   }
 
   @override
@@ -285,7 +287,7 @@ class _HomePageState extends State<HomePage> {
     var scaffold = Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: AppBarTitleWidget(
+        title: ClassificationResultsTitleWidget(
             title: widget.title,
             imagesClassifierService: widget.imagesClassifierService),
         elevation: 1,
