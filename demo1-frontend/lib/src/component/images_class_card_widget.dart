@@ -7,23 +7,23 @@ import 'package:demo1/src/utils.dart';
 import 'package:flutter/material.dart';
 
 /// Image class representation
-class ImageClassCardWidget extends StatefulWidget {
+class ImagesClassCardWidget extends StatefulWidget {
   final int index;
   final ImagesClassifierService imagesClassifierService;
 
-  const ImageClassCardWidget(
+  const ImagesClassCardWidget(
       {required this.index, required this.imagesClassifierService, Key? key})
       : super(key: key);
 
   @override
-  _ImageClassCardWidgetState createState() => _ImageClassCardWidgetState();
+  _ImagesClassCardWidgetState createState() => _ImagesClassCardWidgetState();
 
   int value() {
     return this.index;
   }
 }
 
-class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
+class _ImagesClassCardWidgetState extends State<ImagesClassCardWidget> {
   int count = 0;
   late bool _selected;
   late String? _lastImageUrl;
@@ -31,8 +31,10 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
   @override
   void initState() {
     super.initState();
-    this._selected = this.widget.imagesClassifierService.SelectedImage ==
-        this.widget.value();
+    this._selected =
+        (this.widget.imagesClassifierService.SelectedImage?.item2 as ValueKey)
+                .value ==
+            this.widget.value();
 
     this._lastImageUrl = this
         .widget
@@ -208,7 +210,12 @@ class _ImageClassCardWidgetState extends State<ImageClassCardWidget> {
         .lastTwoImagesForClass(this.widget.value());
     if (imageReferences != null) {
       final imageUrls = imageReferences.toList();
-      await showDialog(context: context, builder: (_) => CompareImagesDialog(GetExcelColumnName(widget.index + 1), imageUrls[0], imageUrls[1]));
+      await showDialog(
+          context: context,
+          builder: (_) => CompareImagesDialog(
+              GetExcelColumnName(widget.index + 1),
+              imageUrls[0],
+              imageUrls[1]));
     }
   }
 

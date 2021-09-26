@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:demo1/src/component/classification_results_title_widget.dart';
 import 'package:demo1/src/component/gallery_toolbar_widget.dart';
-import 'package:demo1/src/component/image_card_widget.dart';
-import 'package:demo1/src/component/image_class_card_widget.dart';
+import 'package:demo1/src/component/unclassified_image_card_widget.dart';
+import 'package:demo1/src/component/images_class_card_widget.dart';
 import 'package:demo1/src/model/classes_count_args.dart';
 import 'package:demo1/src/model/columns_count_args.dart';
 import 'package:demo1/src/model/download_report_args.dart';
@@ -271,13 +271,13 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     var classes = List<Widget>.generate(
         this.widget.imagesClassifierService.ClassesCount ?? 0,
-        (int index) => ImageClassCardWidget(
+        (int index) => ImagesClassCardWidget(
             index: index,
             imagesClassifierService: this.widget.imagesClassifierService));
 
     final imagesForClassification = this
         .unclassifiedImages
-        .map((e) => ImageCardWidget(
+        .map((e) => UnclassifiedImageCardWidget(
               imageReference: e.item1,
               imagesClassifierService: this.widget.imagesClassifierService,
               key: e.item2,

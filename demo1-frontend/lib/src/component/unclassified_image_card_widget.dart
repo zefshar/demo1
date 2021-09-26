@@ -6,25 +6,27 @@ import 'package:flutter/widgets.dart';
 import 'package:tuple/tuple.dart';
 
 /// Image representation
-class ImageCardWidget extends StatefulWidget {
+class UnclassifiedImageCardWidget extends StatefulWidget {
   final String? imageReference;
   final ImagesClassifierService imagesClassifierService;
 
-  const ImageCardWidget(
+  const UnclassifiedImageCardWidget(
       {required this.imageReference,
       required this.imagesClassifierService,
       Key? key})
       : super(key: key);
 
   @override
-  _ImageCardWidgetState createState() => _ImageCardWidgetState();
+  _UnclassifiedImageCardWidgetState createState() =>
+      _UnclassifiedImageCardWidgetState();
 
   Tuple2<String?, Key?> value() {
     return Tuple2(this.imageReference, this.key);
   }
 }
 
-class _ImageCardWidgetState extends State<ImageCardWidget> {
+class _UnclassifiedImageCardWidgetState
+    extends State<UnclassifiedImageCardWidget> {
   late bool _selected;
   late bool _isBlank;
 
