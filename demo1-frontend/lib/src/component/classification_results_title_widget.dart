@@ -48,12 +48,15 @@ class _ClassificationResultsTitleWidgetState
           children: [
             Row(
               children: [
-                EditableText(
-                    controller: _titleEditingController,
-                    focusNode: _classificationResultsFocusNode,
-                    style: const TextStyle(),
-                    cursorColor: Colors.black,
-                    backgroundCursorColor: Colors.green),
+                SizedBox(
+                  width: 300,
+                  child: EditableText(
+                      controller: _titleEditingController,
+                      focusNode: _classificationResultsFocusNode,
+                      style: const TextStyle(),
+                      cursorColor: Colors.black,
+                      backgroundCursorColor: Colors.green),
+                ),
                 Spacer(),
                 Padding(
                     padding: EdgeInsets.fromLTRB(0, 6, 16, 0),

@@ -226,7 +226,7 @@ class _HomePageState extends State<HomePage> {
         this.isValidShardFolder(args.value!).then((value) {
           if (value) {
             final folderId = GoogleDriveLink.getFolderId(args.value!);
-            print('There is valid shared folder ${folderId}');
+            print('There is valid shared folder $folderId');
             this.requestImageLinks(folderId).then((imageLinks) {
               final fullLinks = imageLinks.asMap().entries.map((e) => Tuple2(
                   'https://drive.google.com/uc?id=${e.value}',
@@ -296,7 +296,7 @@ class _HomePageState extends State<HomePage> {
           child: Column(children: [
         Container(
           constraints: BoxConstraints(
-              maxHeight: 200, minHeight: 200, minWidth: double.infinity),
+              maxHeight: 200, minHeight: 120, minWidth: double.infinity),
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: classes,

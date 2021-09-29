@@ -32,8 +32,8 @@ class _ImagesClassCardWidgetState extends State<ImagesClassCardWidget> {
   void initState() {
     super.initState();
     this._selected =
-        (this.widget.imagesClassifierService.SelectedImage?.item2 as ValueKey)
-                .value ==
+        (this.widget.imagesClassifierService.SelectedImage?.item2 as ValueKey?)
+                ?.value ==
             this.widget.value();
 
     this._lastImageUrl = this
