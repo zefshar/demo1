@@ -98,10 +98,8 @@ class ScheduledThreadPoolExecutor(ThreadPoolExecutor):
 
     def __init__(self, max_workers: Optional[int] = ..., thread_name_prefix: str = ..., max_queue_size: int = 16) \
             -> None:
-        if sys.version_info >= (3, 6):
-            super().__init__(max_workers, thread_name_prefix)
-        else:
-            super().__init__(max_workers)
+        super().__init__(max_workers)
+        self._thread_name_prefix = thread_name_prefix
 
         self._work_queue = DelayedQueue(max_queue_size)
         self._tracker = Tracker(max_workers)

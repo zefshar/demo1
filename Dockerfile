@@ -6,6 +6,8 @@ RUN apk add --no-cache --virtual .build-deps make g++
 RUN mkdir /install
 WORKDIR /install
 
+RUN /usr/local/bin/python -m pip install --upgrade pip
+
 COPY requirements.txt /requirements.txt
 RUN pip install --prefix=/install --no-binary multidict,yarl -r /requirements.txt
 
