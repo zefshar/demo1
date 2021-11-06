@@ -1,0 +1,34 @@
+{
+  "name": "classifier",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "start": "sirv public --no-clear"
+  },
+  "devDependencies": {
+    "@material/typography": "^13.0.0",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "@smui/button": "^5.0.0-beta.7",
+    "@smui/card": "^5.0.0-beta.7",
+    "@smui/circular-progress": "^5.0.0-beta.7",
+    "@smui/common": "^5.0.0-beta.7",
+    "@smui/data-table": "^5.0.0-beta.7",
+    "@smui/dialog": "^5.0.0-beta.7",
+    "@smui/drawer": "^5.0.0-beta.7",
+    "@smui/form-field": "^5.0.0-beta.7",
+    "@smui/textfield": "^5.0.0-beta.7",
+    "rollup": "^2.3.4",
+    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-livereload": "^2.0.0",
+    "rollup-plugin-svelte": "^7.0.0",
+    "rollup-plugin-terser": "^7.0.0",
+    "svelte": "^3.0.0"
+  },
+  "dependencies": {
+    "sirv-cli": "^1.0.0"
+  },
+  "homepage": "./"
+}

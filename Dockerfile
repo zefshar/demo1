@@ -23,8 +23,9 @@ ARG google_private_key_json
 
 COPY ./demo1/api /app/demo1/api
 COPY ./amouse /app/amouse
-COPY demo1.flutter /app
-COPY pr1.flutter /app
+COPY demo1.static /app
+COPY cm.static /app
+COPY pr1.static /app
 COPY google_token.pickle /app
 COPY .prebuild/.demo1 /root/.demo1
 WORKDIR /app

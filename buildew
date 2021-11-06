@@ -97,15 +97,21 @@ function docker_build {
 
 function build {
     CURRENT_FOLDER=$PWD
+    
     cd demo1-frontend
     flutter build web --web-renderer html --release
     cd $CURRENT_FOLDER
-    tar -cf demo1.flutter -C demo1-frontend/build/web .
+    tar -cf demo1.static -C demo1-frontend/build/web .
+
+    cd collection-maker
+    npm i && npm run build
+    cd $CURRENT_FOLDER
+    tar -cf cm.static -C collection-maker/public .
 
     cd pr1
     flutter build web --web-renderer canvaskit --release
     cd $CURRENT_FOLDER
-    tar -cf pr1.flutter -C pr1/build/web .
+    tar -cf pr1.static -C pr1/build/web .
 
     docker_build 'demo1/demo1:v1'
 
@@ -118,14 +124,16 @@ fi
 
 if [ "x$COMMAND" == "xdev" ]; then
     echo 'Start application for development'
-    CURRENT_FOLDER=$PWD
-    ps -Fe | grep demo1.api.demo1 | awk ' { print $2 } ' | xargs kill -9
-    $(.venv/bin/python3 -m demo1.api.demo1 -p 8080 || exit 1) &
-    cd $CURRENT_FOLDER
-    cd demo1
-    flutter build web || exit 1
-    flutter run -d chrome --web-hostname localhost --web-port 43433
-    cd $CURRENT_FOLDER
+    echo 'Incorrct implemented right now, sorry...'
+    echo 'Exit...'
+    # CURRENT_FOLDER=$PWD
+    # ps -Fe | grep demo1.api.demo1 | awk ' { print $2 } ' | xargs kill -9
+    # $(.venv/bin/python3 -m demo1.api.demo1 -p 8080 || exit 1) &
+    # cd $CURRENT_FOLDER
+    # cd demo1
+    # flutter build web || exit 1
+    # flutter run -d chrome --web-hostname localhost --web-port 43433
+    # cd $CURRENT_FOLDER
 fi
 
 if [ "x$COMMAND" == "xrun" ]; then
