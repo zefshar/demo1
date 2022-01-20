@@ -6,6 +6,8 @@ RUN apk add --no-cache --virtual .build-deps make g++
 RUN mkdir /install
 WORKDIR /install
 
+RUN /usr/local/bin/python -m pip install --upgrade pip
+
 COPY requirements.txt /requirements.txt
 RUN pip install --prefix=/install --no-binary multidict,yarl -r /requirements.txt
 
@@ -21,8 +23,9 @@ ARG google_private_key_json
 
 COPY ./demo1/api /app/demo1/api
 COPY ./amouse /app/amouse
-COPY demo1.flutter /app
-COPY pr1.flutter /app
+COPY demo1.static /app
+COPY cm.static /app
+COPY pr1.static /app
 COPY google_token.pickle /app
 COPY .prebuild/.demo1 /root/.demo1
 WORKDIR /app

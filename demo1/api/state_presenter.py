@@ -28,7 +28,7 @@ from demo1.api.demo1_configuration import Demo1Configuration
 from demo1.api.demo1_error import Demo1Error
 from demo1.api.demo1_version import Demo1Version
 from demo1.api.endpoints.google_drive_files import GoogleDriveFiles
-from demo1.api.flutter_bundle import FlutterBundle
+from demo1.api.static_bundle import StaticBundle
 from demo1.api.parallel.scheduled_thread_pool_executor import \
     ScheduledThreadPoolExecutor
 from demo1.api.process_controller import ProcessController
@@ -39,8 +39,9 @@ from demo1.api.tasks.price_task import PriceTask
 from demo1.api.tasks.sell_task import SellTask
 from demo1.api.tasks.status_task import StatusTask
 
-DEMO1_FLUTTER_PACK = 'demo1.flutter'
-PR1_FLUTTER_PACK = 'pr1.flutter'
+DEMO1_STATIC_PACK = 'demo1.static'
+CM_STATIC_PACK = 'cm.static'
+PR1_STATIC_PACK = 'pr1.static'
 APPLICATION_JSON = 'application/json'
 
 
@@ -225,7 +226,7 @@ demo1_state_controller = Demo1StateController()
 
 class PresenterHandler:
 
-    flutter_bundle = None
+    static_bundle = None
     logger = logging.getLogger(str('PresenterHandler'))
 
     async def do_GET(self, request: BaseRequest) -> web.Response:
@@ -234,8 +235,12 @@ class PresenterHandler:
             return web.Response(status=301, headers={'Location': '/index.html'})
         if path == '/demo1' or path == '/demo1/':
             return web.Response(status=301, headers={'Location': '/demo1/index.html'})
+        elif path == '/cm' or path == '/cm/':
+            return web.Response(status=301, headers={'Location': '/cm/index.html'})
         elif PresenterHandler.pr1_bundle.has_path(path):
             return PresenterHandler.pr1_bundle.process(path)
+        elif path.startswith('/cm') and PresenterHandler.cm_bundle.has_path(path, '/cm'):
+            return PresenterHandler.cm_bundle.process(path, '/cm')
         elif path.startswith('/demo1') and PresenterHandler.demo1_bundle.has_path(path, '/demo1'):
             return PresenterHandler.demo1_bundle.process(path, '/demo1')
         elif path.startswith('/demo1/api/files'):
@@ -259,42 +264,42 @@ class PresenterHandler:
             content = json.dumps(
                 demo1_state_controller.get_status()).encode('utf-8')
             return web.Response(status=200, body=content, headers={
-                'Content-Type': 'application/json',
+                'Content-Type': 'APPLICATION_JSON',
                 'Content-Length': str(len(content))
             })
         elif path.startswith('/api-1.0/load-data'):
             content = json.dumps(
                 demo1_state_controller.load_data(path)).encode('utf-8')
             return web.Response(status=200, body=content, headers={
-                'Content-Type': 'application/json',
+                'Content-Type': 'APPLICATION_JSON',
                 'Content-Length': str(len(content))
             })
         elif path.startswith('/api-1.0/buy'):
             content = json.dumps(
                 demo1_state_controller.buy(path)).encode('utf-8')
             return web.Response(status=200, body=content, headers={
-                'Content-Type': 'application/json',
+                'Content-Type': 'APPLICATION_JSON',
                 'Content-Length': str(len(content))
             })
         elif path.startswith('/api-1.0/sell'):
             content = json.dumps(
                 demo1_state_controller.sell(path)).encode('utf-8')
             return web.Response(status=200, body=content, headers={
-                'Content-Type': 'application/json',
+                'Content-Type': 'APPLICATION_JSON',
                 'Content-Length': str(len(content))
             })
         elif path.startswith('/api-1.0/status'):
             content = json.dumps(
                 demo1_state_controller.status(path)).encode('utf-8')
             return web.Response(status=200, body=content, headers={
-                'Content-Type': 'application/json',
+                'Content-Type': 'APPLICATION_JSON',
                 'Content-Length': str(len(content))
             })
         elif path.startswith('/api-1.0/balance'):
             content = json.dumps(
                 demo1_state_controller.balance(path)).encode('utf-8')
             return web.Response(status=200, body=content, headers={
-                'Content-Type': 'application/json',
+                'Content-Type': 'APPLICATION_JSON',
                 'Content-Length': str(len(content))
             })
         elif path.startswith('/api-1.0/price'):
@@ -302,7 +307,7 @@ class PresenterHandler:
                 demo1_state_controller.price(path)).encode('utf-8')
             self.send_response(200)
             return web.Response(status=200, body=content, headers={
-                'Content-Type': 'application/json',
+                'Content-Type': 'APPLICATION_JSON',
                 'Content-Length': str(len(content))
             })
         elif path == '/set-setup-mode-false':
@@ -340,7 +345,7 @@ class PresenterHandler:
     def __success_response(self) -> web.Request:
         content = '{"success": true}'.encode('utf-8')
         return web.Response(status=200, body=content, headers={
-            'Content-Type': 'application/json',
+            'Content-Type': 'APPLICATION_JSON',
             'Content-Length': str(len(content))
         })
 
@@ -417,9 +422,11 @@ class StatePresenter:
 
     def start(self):
 
-        PresenterHandler.demo1_bundle = FlutterBundle(
+        PresenterHandler.demo1_bundle = StaticBundle(
             'demo1', [self.demo1_configuration.get_application_folder()])  # [.] for debug
-        PresenterHandler.pr1_bundle = FlutterBundle(
+        PresenterHandler.cm_bundle = StaticBundle(
+            'cm', [self.demo1_configuration.get_application_folder()])  # [.] for debug
+        PresenterHandler.pr1_bundle = StaticBundle(
             'pr1', [self.demo1_configuration.get_application_folder()])  # [.] for debug
         demo1_state_controller.demo1_executor = ScheduledThreadPoolExecutor(max_workers=1,
                                                                             thread_name_prefix='executor-thread')

@@ -11,12 +11,12 @@ from aiohttp import web
 APPLICATION_JSON = 'application/json'
 
 
-class FlutterBundle(object):
+class StaticBundle(object):
 
     def __init__(self, bundle_name: str, folders: list = []):
         super().__init__()
         self.logger = getLogger(self.__class__.__name__)
-        self.bundle_file_path = self.__find(folders, bundle_name + '.flutter')
+        self.bundle_file_path = self.__find(folders, bundle_name + '.static')
         self.pathmap = {}
         self.file_object = None
         self.tar_file = None
@@ -40,15 +40,16 @@ class FlutterBundle(object):
             '.jpeg': 'image/jpeg',
             '.gif': 'image/gif',
             '.json': APPLICATION_JSON,
+            '.map': 'text/map',
             '.tiff': 'image/tiff',
             '.webp': 'image/webp',
-            '.ttf': 'font/ttf',
+            '.otf': 'font/otf',
             '.otf': 'font/otf',
             '.woff': 'font/woff',
             '.woff2': 'font/woff2',
             '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         }
-        self.logger.info('FlutterBundle finish initialization')
+        self.logger.info('StaticBundle finish initialization')
 
     def __find(self, folders: list, file_name: str):
         for folder in folders:

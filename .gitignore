@@ -14,9 +14,18 @@ __pycache__
 # Datasets
 yelp_academic_dataset_business.json
 
-#Flutter web bundle
+# Static web bundle
 *.flutter
+*.static
 
 # Sensitive info
 .buildew
 .private
+
+.prebuild
+
+# CMake stuff
+build
+
+# Control web archive content
+*.tar
